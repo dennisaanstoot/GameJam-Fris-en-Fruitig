@@ -5,6 +5,60 @@
 #include <libwebsockets.h>
 #include <lws_config.h>
 
+#include <json/json.h>
+#include <sys/time.h>
+
+#include <pthread.h>
+
+#include "field.h"
+#include "list.h"
+#include "game.h"
+#include "json.h"
+#include "entity.h"
+
+const char start[] = "start 400 300 1";
+
+char names[4][30];
+unsigned player_amount;
+struct game* game;
+
+/*
+
+void* game_thread(void* args)
+{
+	while(!game_over(game))
+	{
+		game_tick(game);
+		json_object* jobj = json_frame(game);
+		
+	}
+	pthread_exit(NULL);
+}
+
+*/
+
+struct list * build_entity_list()
+{
+	struct list* result;
+	struct entity* e;
+	result = malloc(sizeof(struct list));
+	int i;
+	for(i = 0; i < 4; i++)
+	{
+		unsigned int x = rand() % 400;
+		unsigned int y = rand() % 300;
+		e = entity_player_new(x, y, 0 , 0, x, y, names[i]);
+		if(i == 0)
+		{
+			result->e = e;
+		}
+		else
+		{
+			list_add(result, e);
+		}
+	}
+	return result;
+}
 
 static int
 my_protocol_callback(struct libwebsocket_context *context,
@@ -12,21 +66,56 @@ my_protocol_callback(struct libwebsocket_context *context,
 		enum libwebsocket_callback_reasons reason,
 		void *user, void *in, size_t len)
 {
+	srand(time(NULL));
+	player_amount = 0;
+	char start[] = "start 400 300 4";
     
-	char str[] = "start 400 300 1";
+	char* string;
+	char* pch;
 	size_t l;
+	struct field field;
+	struct list * entity_list;
+
+	unsigned int x;
+	unsigned int y;
+
 	switch (reason) {
-        // http://git.warmcat.com/cgi-bin/cgit/libwebsockets/tree/lib/libwebsockets.h#n260
-	
 	
 	case LWS_CALLBACK_ESTABLISHED:
             printf("connection established\n");
       	    break;
 	case LWS_CALLBACK_RECEIVE:
-//	    char *msg = (char*) in;
-	    printf("%s\n",(char*) in);
-	    l = sizeof(str);
-	    libwebsocket_write(wsi, str, l-1,0);
+	    string = (char*) in;
+	    
+	    pch = strtok(string," ");
+
+	    if(strncmp(pch,"connect",8))
+	    {
+		pch = strtok(string, " ");
+
+		strncpy(names[player_amount],pch,30);
+	        player_amount++;
+
+		if(player_amount == 4)
+		{
+			field.width = 400;
+			field.height = 300;
+			entity_list = build_entity_list();
+			game = game_new(field, entity_list);
+
+		}	
+
+		l = sizeof(start); 
+	    	libwebsocket_write(wsi, start, l-1,0);
+	    }
+	    else if(strncmp(pch,"input",6))
+	    {
+		pch = strtok(string, " ");
+		x = atoi(pch);
+		pch = strtok(string, " ");
+		y = atoi(pch);
+	    }
+
 	    break;
         default:
 //          printf("unhandled callback\n");
