@@ -29,8 +29,9 @@
 	<script>
 		$(document).ready(function()
 		{
-			var name, renderer, loadingbar, cooldown_start_time, loadingbar_width;
+			var name, renderer, cooldown_start_time, loadingbar_width;
 			stage = new PIXI.Stage(0xff0000); // has to be in main scope for callbacks to work
+			loadingbar = new PIXI.Graphics(); // see above
 			var game_width = 800;
 			var game_height = 600;
 			var shoot_enabled = false;
@@ -204,7 +205,6 @@
 			{
 				cooldown_start_time = Date.now();
 				shoot_enabled = false;
-				loadingbar = new PIXI.Graphics();
 				loadingbar.beginFill(0x1D428A);
 				loadingbar.drawRect(0,map_height, 0, 15);
 				loadingbar_width = 60;
