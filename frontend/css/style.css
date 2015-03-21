@@ -12,3 +12,15 @@ canvas {
 	display: block;
 	margin: 10px auto;
 }
+
+.progress.loading-assets {
+    height: 70px;
+}
+
+.progress.loading-assets .progress-bar {
+    line-height: 70px;
+}
+
+.progress.loading-assets span {
+    font-size: 18px;
+}
