@@ -19,8 +19,8 @@ struct entity* entity_player_new(unsigned int x, unsigned int y, unsigned int xv
 	info->xd = 0;
 	info->yd = 0;
 	info->health = 0;
-	char* string = malloc(strnlen(name,30));
-	strncpy(string, name, 30);
+	char* string = malloc(30);
+	strncpy(string, name, 29);
 	info->name = string;
 	result->info = info;
 	return result;

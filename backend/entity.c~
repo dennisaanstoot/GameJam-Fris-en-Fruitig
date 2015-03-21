@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 
+#include "field.h"
 #include "game.h"
 #include "entity.h"
 
@@ -19,7 +20,7 @@ struct entity* entity_player_new(unsigned int x, unsigned int y, unsigned int xv
 	info->yd = 0;
 	info->health = 0;
 	char* string = malloc(strnlen(name,30));
-	strncpy(string, name, 30);
+	strncpy(string, name, 29);
 	info->name = string;
 	result->info = info;
 	return result;

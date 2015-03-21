@@ -3,7 +3,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <libwebsockets.h>
-#include <lws_config.h>
 
 #include <json/json.h>
 #include <sys/time.h>
@@ -16,26 +15,37 @@
 #include "json.h"
 #include "entity.h"
 
-const char start[] = "start 400 300 1";
-
-char names[4][30];
+char names[30][30];
+int a[20];
 unsigned player_amount;
 struct game* game;
-
-/*
+struct libwebsocket * sockets[4];
 
 void* game_thread(void* args)
 {
+	int i;
+	printf("Game on\n");
+	char start[] = "start 400 300 4";
+	size_t l = sizeof(start);
+	
+	for(i = 0; i < 4; i++)
+	{
+	    	libwebsocket_write(sockets[i], start, l-1,0);
+	}
 	while(!game_over(game))
 	{
 		game_tick(game);
 		json_object* jobj = json_frame(game);
-		
+		for(i = 0; i < 4; i++)
+		{
+			char * string = json_object_to_json_string(jobj);
+			size_t size = strlen(string);
+			libwebsocket_write(sockets[i],string, size - 1, 0);
+		}
 	}
+	game = NULL;
 	pthread_exit(NULL);
 }
-
-*/
 
 struct list * build_entity_list()
 {
@@ -47,7 +57,10 @@ struct list * build_entity_list()
 	{
 		unsigned int x = rand() % 400;
 		unsigned int y = rand() % 300;
+		printf("Name %d: %s\n", i+1, names[i]);
 		e = entity_player_new(x, y, 0 , 0, x, y, names[i]);
+		printf("Name %d: %s\n", i+1, names[i]);
+
 		if(i == 0)
 		{
 			result->e = e;
@@ -66,9 +79,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 		enum libwebsocket_callback_reasons reason,
 		void *user, void *in, size_t len)
 {
-	srand(time(NULL));
-	player_amount = 0;
-	char start[] = "start 400 300 4";
+	char ok[] = "ok";
     
 	char* string;
 	char* pch;
@@ -78,6 +89,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 
 	unsigned int x;
 	unsigned int y;
+	pthread_t thread;
 
 	switch (reason) {
 	
@@ -89,30 +101,36 @@ my_protocol_callback(struct libwebsocket_context *context,
 	    
 	    pch = strtok(string," ");
 
-	    if(strncmp(pch,"connect",8))
+	    if(strncmp(pch,"connect",8) == 0)
 	    {
-		pch = strtok(string, " ");
+		pch = strtok(NULL, " ");
+
+		l = sizeof(ok);
+		libwebsocket_write(wsi,ok,l-1,0);  
 
 		strncpy(names[player_amount],pch,30);
-	        player_amount++;
+		sockets[player_amount] = wsi;
 
+		printf("Players: %d, %s\n", player_amount, names[player_amount]);
+
+	        player_amount++;
+		
 		if(player_amount == 4)
 		{
 			field.width = 400;
 			field.height = 300;
 			entity_list = build_entity_list();
 			game = game_new(field, entity_list);
-
+			pthread_create(&thread, NULL, game_thread, NULL);
+			player_amount = 0;
 		}	
 
-		l = sizeof(start); 
-	    	libwebsocket_write(wsi, start, l-1,0);
 	    }
-	    else if(strncmp(pch,"input",6))
+	    else if(strncmp(pch,"input",6) == 0)
 	    {
-		pch = strtok(string, " ");
+		pch = strtok(NULL, " ");
 		x = atoi(pch);
-		pch = strtok(string, " ");
+		pch = strtok(NULL, " ");
 		y = atoi(pch);
 	    }
 
@@ -129,6 +147,8 @@ my_protocol_callback(struct libwebsocket_context *context,
 int main(int argc, char** arg)
 {
   // server url will be http://localhost:9000
+  srand(time(NULL));
+  player_amount = 0;
   int port = 9000;
   const char *interface = NULL;
   struct libwebsocket_context *context;
@@ -144,8 +164,8 @@ int main(int argc, char** arg)
   {
 	  	"fris_en_fruitig",
 		my_protocol_callback,
-		100,
-		100,
+		1000,
+		1000,
 		0,
 		NULL,
 		NULL,
