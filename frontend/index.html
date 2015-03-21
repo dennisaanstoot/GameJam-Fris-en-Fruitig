@@ -186,7 +186,7 @@
 				renderer.render(stage);
 			}
 
-			stage.click = function() {
+			stage.touch = function() {
 				var mouse_position = stage.getMousePosition();
 				send_to_server("input l "+mouse_position.x+" "+mouse_position.y);
 			}
