@@ -1,0 +1,71 @@
+#include <json/json.h>
+#include <stdio.h>
+#include <math.h>
+
+#include "field.h"
+#include "list.h"
+#include "game.h"
+#include "entity.h"
+
+json_object* json_frame(struct game* g)
+{
+	struct list * curr = g->entity_list;
+	struct entity * e = (struct entity *) curr->e;
+	struct player_info * p_info;
+	struct bullet_info * b_info;
+
+	json_object * jarray = json_object_new_array();
+	json_object * jobj = NULL;
+
+	json_object * jx = NULL;
+	json_object * jy = NULL;
+	json_object * jangle = NULL;
+	json_object * jhealth = NULL;
+	json_object * jname = NULL;
+
+	
+	while(curr != NULL)
+	{
+		jobj = json_object_new_object();
+		switch(e->type) {
+		case PLAYER:
+			p_info = (struct player_info *) e->info;
+			
+			jx = json_object_new_int(e->x);
+			jy = json_object_new_int(e->y);
+			jangle = json_object_new_double(atan2((double) p_info->xv, (double) p_info->yv));
+			jhealth = json_object_new_int(p_info->health);
+			jname = json_object_new_string(p_info->name);
+
+			json_object_object_add(jobj, "x", jx);
+			json_object_object_add(jobj, "y", jy);
+			json_object_object_add(jobj, "angle", jangle);
+			json_object_object_add(jobj, "health", jhealth);
+			json_object_object_add(jobj, "name", jname);
+			break;
+		case BULLET:
+			b_info = (struct bullet_info *) e->info;
+
+			jx = json_object_new_int(e->x);
+			jy = json_object_new_int(e->y);
+			jangle = json_object_new_double(atan2((double) p_info->xv, (double) p_info->yv));
+
+			json_object_object_add(jobj, "x", jx);
+			json_object_object_add(jobj, "y", jy);
+			json_object_object_add(jobj, "angle", jangle);
+
+			break;
+		case TREE:
+			jx = json_object_new_int(e->x);
+			jy = json_object_new_int(e->y);
+
+			json_object_object_add(jobj, "x", jx);
+			json_object_object_add(jobj, "y", jy);
+
+			break;
+		}
+		json_object_array_add(jarray, jobj);
+	}
+	return jarray;
+}
+

@@ -1,12 +1,15 @@
+#include <stdlib.h>
 
 #include "field.h"
-#include "entity_list.h"
+#include "list.h"
+#include "game.h"
+#include "entity.h"
 
-struct game * game_new(struct field f, struct entity_list entity_list)
+struct game * game_new(struct field f, struct list * entity_list)
 {
-	struct game * result = malloc(size(struct game));
-	game->field = f;
-	game->entity_list = entity_list;
+	struct game * result = malloc(sizeof(struct game));
+	result->field = f;
+	result->entity_list = entity_list;
 	return result;
 }
 
@@ -17,10 +20,10 @@ void game_destroy(struct game* game)
 
 void game_tick(struct game * g)
 {
-	struct entity_list * curr = g->entity_list;
+	struct list * curr = g->entity_list;
 	while(curr != NULL)
 	{
-		struct entity entity = curr->entity;
+		struct entity * entity = (struct entity *) curr->e;
 		entity_tick(entity, g);
 		curr = curr->next;
 	}
@@ -29,12 +32,12 @@ void game_tick(struct game * g)
 int game_over(struct game * g)
 {
 	int player_alive = 0;
-	struct entity_list * curr = g->entity_list;
+	struct list * curr = g->entity_list;
 	while(curr != NULL)
 	{
-		struct entity entity = curr->entity;
+		struct entity * entity = curr->e;
 		
-		if(entity->entity_type == PLAYER)
+		if(entity->type == PLAYER)
 		{
 			struct player_info * info = (struct player_info*) entity->info;
 			if(info->health <= 0)
@@ -44,5 +47,8 @@ int game_over(struct game * g)
 		}
 		
 		curr = curr->next;
-	}	
+	}
+	if(player_alive <= 2)
+		return 1;
+	return 0;
 }

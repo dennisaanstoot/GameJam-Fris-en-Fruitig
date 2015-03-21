@@ -1,6 +1,4 @@
 
-#include "game.h"
-
 enum entity_type {
 	PLAYER,
 	TREE,
@@ -20,6 +18,7 @@ struct player_info {
 	unsigned int xd;
 	unsigned int yd;
 	int health;
+	char* name;
 };
 
 struct bullet_info {
@@ -27,7 +26,7 @@ struct bullet_info {
 	unsigned int yv;
 };
 
-struct entity* entity_player_new(unsigned int x, unsigned int y, unsigned int xv, unsigned int yv, unsigned int xd, unsigned int yd);
+struct entity* entity_player_new(unsigned int x, unsigned int y, unsigned int xv, unsigned int yv, unsigned int xd, unsigned int yd, char* name);
 
 struct entity* entity_tree_new(unsigned int x, unsigned int y);
 
