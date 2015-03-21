@@ -13,7 +13,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 		void *user, void *in, size_t len)
 {
     
-	char str[] = "start 400 300 1";
+	char str[] = "start";
 	size_t l;
 	switch (reason) {
         // http://git.warmcat.com/cgi-bin/cgit/libwebsockets/tree/lib/libwebsockets.h#n260
