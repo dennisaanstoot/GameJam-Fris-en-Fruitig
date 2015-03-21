@@ -14,12 +14,12 @@ struct entity* entity_player_new(unsigned int x, unsigned int y, unsigned int xv
 	result->x = x;
 	result->y = y;
 	struct player_info * info = malloc(sizeof(struct player_info));
-	info->xv = 0;
-	info->yv = 0;
-	info->xd = 0;
-	info->yd = 0;
-	info->health = 0;
-	char* string = malloc(strnlen(name,30));
+	info->xv = xv;
+	info->yv = yv;
+	info->xd = xd;
+	info->yd = yd;
+	info->health = 100;
+	char* string = malloc(30);
 	strncpy(string, name, 29);
 	info->name = string;
 	result->info = info;
@@ -57,10 +57,10 @@ void player_tick(struct entity * e, struct game * game)
 		return;
 	}
 
-	double a = atan2(info->xd - e->x, info->yd - e->y);
+	double a = atan2(info->yd - e->y, info->xd - e->x);
 
 	info->xv += (unsigned int) (5.0 * cos(a));
-	info->yv += (unsigned int) (5.0 * sin(a));
+	info->yv -= (unsigned int) (5.0 * sin(a));
 
 	e->x += info->xv;
 	e->y += info->yv;

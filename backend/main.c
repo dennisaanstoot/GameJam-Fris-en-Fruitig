@@ -19,7 +19,7 @@ char names[30][30];
 int a[20];
 unsigned player_amount;
 struct game* game;
-struct libwebsocket * sockets[4];
+struct libwebsocket * sockets[2];
 
 void* game_thread(void* args)
 {
@@ -28,7 +28,7 @@ void* game_thread(void* args)
 	char start[] = "start 400 300 4";
 	size_t l = sizeof(start);
 	
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < 2; i++)
 	{
 	    	libwebsocket_write(sockets[i], start, l-1,0);
 	}
@@ -36,13 +36,28 @@ void* game_thread(void* args)
 	{
 		game_tick(game);
 		json_object* jobj = json_frame(game);
-		for(i = 0; i < 4; i++)
+	
+		char * json_string = json_object_to_json_string(jobj);
+		size_t size = strlen(json_string);
+		char* string = malloc(size + 7);
+
+		strcpy(string, "frame ");
+		strcat(string,json_string);
+		
+		size = strlen(string);
+
+		printf("JSON: %s\n", string);
+
+
+		for(i = 0; i < 2; i++)
 		{
-			char * string = json_object_to_json_string(jobj);
-			size_t size = strlen(string);
-			libwebsocket_write(sockets[i],string, size - 1, 0);
+			libwebsocket_write(sockets[i],string, size, 0);
 		}
+		
+		
+		sleep(1);
 	}
+	printf("End game\n");
 	game = NULL;
 	pthread_exit(NULL);
 }
@@ -52,23 +67,18 @@ struct list * build_entity_list()
 	struct list* result;
 	struct entity* e;
 	result = malloc(sizeof(struct list));
+	result->length = 0;
+	result->size = 5;
+	result->array = malloc(sizeof(void*) * result->size);
 	int i;
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < 2; i++)
 	{
 		unsigned int x = rand() % 400;
 		unsigned int y = rand() % 300;
 		printf("Name %d: %s\n", i+1, names[i]);
 		e = entity_player_new(x, y, 0 , 0, x, y, names[i]);
 		printf("Name %d: %s\n", i+1, names[i]);
-
-		if(i == 0)
-		{
-			result->e = e;
-		}
-		else
-		{
-			list_add(result, e);
-		}
+		list_add(result, e);
 	}
 	return result;
 }
@@ -87,8 +97,12 @@ my_protocol_callback(struct libwebsocket_context *context,
 	struct field field;
 	struct list * entity_list;
 
+	int i;
+
 	unsigned int x;
 	unsigned int y;
+	char b;
+
 	pthread_t thread;
 
 	switch (reason) {
@@ -115,7 +129,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 
 	        player_amount++;
 		
-		if(player_amount == 4)
+		if(player_amount == 2)
 		{
 			field.width = 400;
 			field.height = 300;
@@ -126,12 +140,33 @@ my_protocol_callback(struct libwebsocket_context *context,
 		}	
 
 	    }
-	    else if(strncmp(pch,"input",6) == 0)
+	    else if(strncmp(pch,"input",6) == 0 && game != NULL)
 	    {
+		pch = strtok(NULL, " ");
+		b = pch[0];
 		pch = strtok(NULL, " ");
 		x = atoi(pch);
 		pch = strtok(NULL, " ");
 		y = atoi(pch);
+		for(i = 0; i < 4; i++)
+		{
+			if(wsi == sockets[i])
+			{
+				struct list * e_list = game->entity_list;
+				struct entity * e = e_list->array[i];
+				struct player_info * info = (struct player_info *) e->info;
+				if(b = 'l')
+				{
+					info->xd = x;
+					info->yd = y;
+				}
+				else if(b == 'r')
+				{
+
+				}
+				break;
+			}
+		}
 	    }
 
 	    break;
@@ -164,8 +199,8 @@ int main(int argc, char** arg)
   {
 	  	"fris_en_fruitig",
 		my_protocol_callback,
-		1000,
-		1000,
+		10000,
+		10000,
 		0,
 		NULL,
 		NULL,

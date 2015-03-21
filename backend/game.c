@@ -20,22 +20,24 @@ void game_destroy(struct game* game)
 
 void game_tick(struct game * g)
 {
-	struct list * curr = g->entity_list;
-	while(curr != NULL)
+	int i;
+	struct list * l = g->entity_list;
+	for(i = 0; i < l->length; i++) 
 	{
-		struct entity * entity = (struct entity *) curr->e;
+		struct entity * entity = (struct entity *) l->array[i];
 		entity_tick(entity, g);
-		curr = curr->next;
 	}
 }
 
 int game_over(struct game * g)
 {
+	return 0;
 	int player_alive = 0;
-	struct list * curr = g->entity_list;
-	while(curr != NULL)
+	int i;
+	struct list * l = g->entity_list;
+	for(i = 0; i < l->length; i++) 
 	{
-		struct entity * entity = curr->e;
+		struct entity * entity = (struct entity *) l->array[i];
 		
 		if(entity->type == PLAYER)
 		{
@@ -46,7 +48,6 @@ int game_over(struct game * g)
 			}
 		}
 		
-		curr = curr->next;
 	}
 	if(player_alive <= 2)
 		return 1;
