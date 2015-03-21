@@ -1,8 +1,19 @@
 #include "list.h"
 #include <stdlib.h>
+#include <string.h>
 
-void list_add(struct list * list, void * e)
+void list_add(struct list * l, void * e)
 {
+
+	if(l->length >= l->size)
+	{
+		unsigned int size = l->size * 2;
+		free(l->array);
+		l->array = malloc(sizeof(void*) * size);
+	}
+	l->array[++l->length] = e;
+
+	/*
         struct list * curr = list;
         while(curr->next != NULL) 
         {
@@ -12,10 +23,23 @@ void list_add(struct list * list, void * e)
         new_list->e = e;
         new_list->next = 0;
         curr->next = new_list;
+	*/
 }
 
-struct list * list_remove(struct list * list, void * e)
+void list_remove(struct list * l, void * e)
 {
+
+	int i;
+	for(i = 0; i < l->size; i++)
+	{
+		if(l->array[i] == e)
+		{
+			memcpy(&l->array[i], &l->array[i+1], l->length-1);
+			return;
+		}
+	}
+
+	/*
         struct list * prev = NULL;
         struct list * curr = list;
         int done = 0;
@@ -42,4 +66,8 @@ struct list * list_remove(struct list * list, void * e)
                 }
         }
         return list;
+
+	*/
 }
+
+
