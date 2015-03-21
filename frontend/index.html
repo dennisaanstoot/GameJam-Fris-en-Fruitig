@@ -8,10 +8,10 @@
 		head.load("libs/pixi.js","libs/jquery.js","libs/sound.js","js/main.js");
 	</script>
 </head>
-<body>
-	<div id="connectForm">
+<body onload="loadSound();">
+	<form id="connectForm">
 		<input type="text" id="name">
-		<button id="connect">Connect</button>
-	</div>
+		<input type="submit" id="connect" value="Connect">
+	</form>
 </body>
 </html>
