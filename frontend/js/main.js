@@ -57,20 +57,22 @@ $(document).ready(function()
 	var message;
 	socket.onmessage = function(event) {
 		console.log(event);
-		message = event.data.split(" ");
+		message = event.data;
+		var index_keyword = message.indexOf(" ");
+		var keyword = message.substr(0,index_keyword);
 		console.log("Receive: "+message);
-		switch (message[0])
+		switch (keyword)
 		{
 			case "ok":
 				wait_screen();
 				break;
 
 			case "start":
-				start_game(message);
+				start_game(message.substr(index_keyword,message.length).split(" "));
 				break;
 
 			case "frame":
-				draw_frame(message);
+				draw_frame(message.substr(index_keyword,message.length).split(" "));
 				break;
 		}
 	}
