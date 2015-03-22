@@ -21,6 +21,17 @@ $(document).ready(function()
 	var player_size = 20;
 	var tree_size = 40;
 	var bullet_size = 10;
+
+    var player_color = 'ffffff'
+
+	// textures
+	var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
+	var tree_texture = PIXI.Texture.fromImage("sprites/tree.png");
+	var bullet_texture = PIXI.Texture.fromImage("sprites/bullet.png");
+
+	// object arrays
+	var player_array = [];
+	var bullet_array = [];
 	
 	// Write down the game name
 	var game_name = new PIXI.Text("Fris en dodelijk",{font: 'bold 36px Georgia', fill: 'white'});
@@ -48,16 +59,18 @@ $(document).ready(function()
 	socket.onopen = function() {
 		console.log("Connection established");
 		$("body").css('background-color', '#0f0');
-	}
+	};
 
 	socket.onerror = function() {
 		$("body").css('background-color', '#f00');
-	}
+	};
 
 	socket.onclose = function() {
 		console.log("Connection closed");
 		$("body").css('background-color', '#000');
-	}
+	};
+
+
 
 	var message;
 	socket.onmessage = function(event) {
@@ -118,6 +131,22 @@ $(document).ready(function()
 		background.height = map_height;
 		map.addChild(background);
 
+		//fill player array
+		for (var i=0;i<player_amount;i++)
+		{
+			var player = new PIXI.Sprite(player_texture);
+			player_array.push(player);
+			player.tint = 1/i*3 * player_color;
+			player.anchor.x = player.anchor.y = 0.5;
+			player.width = player.height = player_size;
+			map.addChild(player);
+
+			var bullet = new PIXI.Sprite(bullet_texture);
+			bullet_array.push(bullet);
+			bullet.anchor.x = bullet.anchor.y = 0.5;
+			bullet.width = bullet.height = bullet_size;
+			map.addChild(bullet);
+		}
 
 		var player_amount_text = new PIXI.Text("Players: "+player_amount, {font: 'normal 12px Georgia', fill: 'white'});
 		player_amount_text.anchor.x = player_amount_text.anchor.y = 1;
@@ -134,27 +163,20 @@ $(document).ready(function()
 	function draw_frame(message) {
 		var entities = JSON.parse(message);
 
-		var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
-		var tree_texture = PIXI.Texture.fromImage(  "sprites/tree.png");
-		var bullet_texture = PIXI.Texture.fromImage("sprites/bullet.png");
+		var player_counter = 0;
+		var bullet_counter = 0;
 
-		player_counter = 2; // semi-random value to generate nice colours for players
-		map.removeChildren(1);
 		for (var i = 0; i < entities.length; i++)
 		{
 			var entity = entities[i];
 			switch(entity.entity_type)
 			{
 				case "player":
-					var player = new PIXI.Sprite(player_texture);
-					player.tint = 1/player_counter * 0xffffff;
-					player.anchor.x = player.anchor.y = 0.5;
+					var player = player_array[player_counter];
 					player.position.x = entity.x;
 					player.position.y = entity.y;
 					player.rotation = entity.angle;
-					player.width = player.height = player_size;
-					map.addChild(player);
-					player_counter += 3;
+					player_counter++;
 					break;
 
 				case "tree":
@@ -167,17 +189,14 @@ $(document).ready(function()
 					break;
 
 				case "bullet":
-					var bullet = new PIXI.Sprite(bullet_texture);
-					bullet.anchor.x = bullet.anchor.y = 0.5;
+					var bullet = bullet_array[bullet_counter];
 					bullet.position.x = entity.x;
 					bullet.position.y = entity.y;
 					bullet.position = entity.angle;
-					bullet.width = bullet.height = bullet_size;
-					map.addChild(bullet);
+					bullet_counter++;
 					break;
 			}
 		}
-		draw();
 	}
 	
 	function draw() {
