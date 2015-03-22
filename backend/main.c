@@ -25,7 +25,7 @@ void* game_thread(void* args)
 {
 	int i;
 	printf("Game on\n");
-	char start[] = "start 800 600 2";
+	unsigned char start[] = "start 800 600 2";
 	size_t l = sizeof(start);
 	
 	for(i = 0; i < 2; i++)
@@ -46,17 +46,33 @@ void* game_thread(void* args)
 		
 		size = strlen(string);
 		
-		printf("JSON: %s\n", string);
+		// printf("JSON: %s\n", string);
 		
 		for(i = 0; i < 2; i++)
 		{
 			libwebsocket_write(sockets[i],string, size, 0);
 		}
 		
-		
 		usleep(50000);
 	}
 	printf("End game\n");
+	struct list * e_list = game->entity_list;
+	for(i = 0; i < e_list->length; i++)
+	{
+		struct entity * e = e_list->array[i];
+		switch(e->type) {
+		case PLAYER:
+			entity_player_destroy(e);
+			break;
+		case BULLET:
+			entity_bullet_destroy(e);
+			break;
+		case TREE:
+			entity_tree_destroy(e);
+			break;
+		}
+	}
+	game_destroy(game);
 	game = NULL;
 	pthread_exit(NULL);
 }
@@ -77,6 +93,13 @@ struct list * build_entity_list()
 		e = entity_player_new(x, y, 0 , 0, x, y, names[i]);
 		list_add(result, e);
 	}
+	for(i = 0; i < 4; i++)
+	{
+		unsigned int x = rand() % 800;
+		unsigned int y = rand() % 600;
+		e = entity_tree_new(x, y);
+		list_add(result, e);
+	}
 	return result;
 }
 
@@ -86,7 +109,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 		enum libwebsocket_callback_reasons reason,
 		void *user, void *in, size_t len)
 {
-	char ok[] = "ok";
+	unsigned char ok[] = "ok";
     
 	char* string;
 	char* pch;

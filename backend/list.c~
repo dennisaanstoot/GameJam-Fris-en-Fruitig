@@ -2,6 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+void list_print(struct list * l)
+{
+	int i;
+	for(i < 0; i < l->length; i++)
+	{
+		printf("%p, ", l->array[i]);
+	}
+	printf("\n");
+}
+
 void list_add(struct list * l, void * e)
 {
 	if(l->length >= l->size)
@@ -14,20 +24,28 @@ void list_add(struct list * l, void * e)
 	}
 	l->array[l->length] = e;
 	l->length++;
+
+	list_print(l);
 }
 
 void list_remove(struct list * l, void * e)
 {
 	int i;
-	for(i = 0; i < l->size; i++)
+	for(i = 0; i < l->length; i++)
 	{
 		if(l->array[i] == e)
 		{
-			memcpy(&l->array[i], &l->array[i+1], l->length-1);
+			while(i < l->length -1)
+			{
+				l->array[i] = l->array[i+1]
+			}
+
 			l->length--;
 			return;
 		}
 	}
+
+	list_print(l);
 }
 
 
