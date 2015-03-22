@@ -16,12 +16,12 @@ $(document).ready(function()
 	var stage = new PIXI.Stage(0xff0000); // has to be in main scope for callbacks to work
 	var map = new PIXI.DisplayObjectContainer(); // see above
 	var waiting_screen = new PIXI.Text("Waiting for other players",{font: 'bold 36px Georgia', fill: 'white'}); // see above
-	var game_width = 1600;
-	var game_height = 1400;
+	var game_width = 1200;
+	var game_height = 1100;
 	var socket = new WebSocket('ws://130.89.231.61:9000','fris_en_fruitig');
 	var player_size = 50;
 	var tree_size = 100;
-	var bullet_size = 20;
+	var bullet_size = 30;
     var powerup_size = 40;
     var player_color;
 
@@ -100,7 +100,6 @@ $(document).ready(function()
                 console.log(message);
                 game_over(message.substr(index_keyword,message.length+1));
                 break;
-
 		}
 	}
 
@@ -232,11 +231,21 @@ $(document).ready(function()
         var graphics = new PIXI.Graphics();
         graphics.clear();
         graphics.lineStyle(5, 0x000000, 1);
-        graphics.drawRect(30, game_height-260, 100, 30);
+        var width;
+        health = health/10;
+        if (health<100)
+        {
+        	width = 100;
+        }
+        else
+        {
+        	width = health;
+        }
+        graphics.drawRect(30, map_height-30, width, 30);
 
         graphics.lineStyle(0, 0x000000, 1);
         graphics.beginFill(0xff0000, 1);
-        graphics.drawRect(30, game_height-260, health/10, 30);
+        graphics.drawRect(30, map_height-30, health, 30);
         graphics.endFill();
 
         return graphics;
@@ -250,25 +259,24 @@ $(document).ready(function()
 	var click_timer = 0;
 	var timeout;
 	stage.tap = function(event) {
-		if (click_timer = 0)
+		if (click_timer == 0)
 		{
 			click_timer = Date.now();
-			timeout = setTimeout(mobileMove(event),100);
+			timeout = setTimeout(function() {
+				send_to_server("input l "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
+				click_timer = 0;
+			},300);
 		}
 		else
 		{
-			if (Date.now() - click_timer <= 100)
+			console.log('something');
+			if (Date.now() - click_timer <= 300)
 			{
 				clearTimeout(timeout);
 				click_timer = 0;
 				send_to_server("input r "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
 			}
 		}
-	}
-
-	function mobileMove(event) {
-		send_to_server("input l "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
-		click_timer = 0;
 	}
 
 	stage.click = function(event) {
