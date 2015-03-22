@@ -11,8 +11,8 @@ void list_add(struct list * l, void * e)
 		free(l->array);
 		l->array = malloc(sizeof(void*) * size);
 	}
-	l->array[++l->length] = e;
-
+	l->array[l->length] = e;
+	l->length++;
 	/*
         struct list * curr = list;
         while(curr->next != NULL) 

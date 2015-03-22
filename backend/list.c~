@@ -23,7 +23,7 @@ void list_add(struct list * l, void * e)
         new_list->e = e;
         new_list->next = 0;
         curr->next = new_list;
-	*/:
+	*/
 }
 
 void list_remove(struct list * l, void * e)
