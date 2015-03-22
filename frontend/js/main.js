@@ -9,7 +9,7 @@ $(document).ready(function()
     });
 
     // variables constructions / initializations
-	var name, renderer, cooldown_start_time, loadingbar_width, map_width, map_height;
+	var name, renderer, cooldown_start_time, loadingbar_width, map_width, map_height, loadingbar;
 	var stage = new PIXI.Stage(0xff0000); // has to be in main scope for callbacks to work
 	var map = new PIXI.DisplayObjectContainer(); // see above
 	var waiting_screen = new PIXI.Text("Waiting for other players",{font: 'bold 36px Georgia', fill: 'white'}); // see above
@@ -148,9 +148,9 @@ $(document).ready(function()
 		}
 
 		// create loadingbar
-		var loadingbar = new PIXI.Graphics(); // see above
+		loadingbar = new PIXI.Graphics(); // see above
 		loadingbar.beginFill(0x1D428A);
-		loadingbar.drawRect(5,map_height-5, 0, 15);
+		loadingbar.drawRect(5,map_height-5, 60, 15);
 		loadingbar_width = 60;
 		map.addChild(loadingbar);
 
@@ -198,7 +198,7 @@ $(document).ready(function()
 					var bullet = bullet_array[bullet_counter];
 					bullet.position.x = entity.x;
 					bullet.position.y = entity.y;
-					bullet.position = entity.angle;
+					bullet.rotation = entity.angle;
 					bullet_counter++;
 					break;
 			}
