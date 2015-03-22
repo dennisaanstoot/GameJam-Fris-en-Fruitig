@@ -13,6 +13,7 @@ Client: input [button] [x] [y]
 
 Server: frame [frame]
 
+Server: gameover [winner]
 ####[frame]
 [entity_type] [x] [y] [angle] [health] [name]
 
