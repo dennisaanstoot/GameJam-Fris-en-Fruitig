@@ -32,12 +32,12 @@ $(document).ready(function()
 
 	// attempt connecting to server with name
 
-	$("#connectForm").submit(function(event)
+	$("#login-form").submit(function(event)
 	{
 		event.preventDefault();
-		name = $("#name").val();
+		name = $("#username").val();
 		send_to_server("connect "+name);
-		$("#connectForm").remove();
+		$("#login-form").remove();
 	});
 
 	socket.onopen = function() {
