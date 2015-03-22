@@ -11,11 +11,10 @@ $(document).ready(function()
     // variables constructions / initializations
 	var name, renderer, cooldown_start_time, loadingbar_width, map_width, map_height;
 	var stage = new PIXI.Stage(0xff0000); // has to be in main scope for callbacks to work
-	var loadingbar = new PIXI.Graphics(); // see above
 	var map = new PIXI.DisplayObjectContainer(); // see above
 	var waiting_screen = new PIXI.Text("Waiting for other players",{font: 'bold 36px Georgia', fill: 'white'}); // see above
-	var game_width = window.innerWidth;
-	var game_height = window.innerHeight;
+	var game_width = 800;
+	var game_height = 600;
 	var shoot_enabled = false;
 	var socket = new WebSocket('ws://130.89.231.61:9000','fris_en_fruitig');
 	var player_size = 20;
@@ -144,6 +143,13 @@ $(document).ready(function()
 			map.addChild(bullet);
 		}
 
+		// create loadingbar
+		var loadingbar = new PIXI.Graphics(); // see above
+		loadingbar.beginFill(0x1D428A);
+		loadingbar.drawRect(5,map_height-5, 0, 15);
+		loadingbar_width = 60;
+		map.addChild(loadingbar);
+
 		var player_amount_text = new PIXI.Text("Players: "+player_amount, {font: 'normal 12px Georgia', fill: 'white'});
 		player_amount_text.anchor.x = player_amount_text.anchor.y = 1;
 		player_amount_text.position.x = map_width-5;
@@ -192,7 +198,6 @@ $(document).ready(function()
 					break;
 			}
 		}
-		//draw();
 	}
 	
 	function draw() {
@@ -218,17 +223,14 @@ $(document).ready(function()
 	function shootCooldown()
 	{
 		cooldown_start_time = Date.now();
+		loadingbar.visible = true;
 		shoot_enabled = false;
-		loadingbar.beginFill(0x1D428A);
-		loadingbar.drawRect(0,map_height, 0, 15);
-		loadingbar_width = 60;
-		map.addChild(loadingbar);
 	}
 
 	function enableShoot()
 	{
 		shoot_enabled = true;
-		map.removeChild(loadingbar);
+		loadingbar.visible = false;
 	}
 
 	function send_to_server(message)
