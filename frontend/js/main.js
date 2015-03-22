@@ -12,8 +12,8 @@ $(document).ready(function()
 	var stage = new PIXI.Stage(0xff0000); // has to be in main scope for callbacks to work
 	var map = new PIXI.DisplayObjectContainer(); // see above
 	var waiting_screen = new PIXI.Text("Waiting for other players",{font: 'bold 36px Georgia', fill: 'white'}); // see above
-	var game_width = 1000;
-	var game_height = 800;
+	var game_width = 1400;
+	var game_height = 1200;
 	var shoot_enabled = false;
 	var socket = new WebSocket('ws://130.89.231.61:9000','fris_en_fruitig');
 	var player_size = 50;
