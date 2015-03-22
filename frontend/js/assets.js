@@ -18,8 +18,8 @@ var pixi_assets = [
     "sprites/waiting.png"];
 
 var sounds = [
-    {src: 'music/BgmBa4Darkon.mp3', name: 'darkon'},
-    {src: 'music/BgmTh6Flying.mp3', name: 'flying'}
+    //{src: 'music/BgmBa4Darkon.mp3', name: 'darkon'},
+    //{src: 'music/BgmTh6Flying.mp3', name: 'flying'}
 ];
 
 
