@@ -1,7 +1,7 @@
 $(document).ready(function()
 {
 
-    //head.load("js/player.js");
+
 
 	// turn off right click menu
 	window.addEventListener("contextmenu", function(e) {
@@ -14,18 +14,14 @@ $(document).ready(function()
 	var stage = new PIXI.Stage(0xff0000); // has to be in main scope for callbacks to work
 	var map = new PIXI.DisplayObjectContainer(); // see above
 	var waiting_screen = new PIXI.Text("Waiting for other players",{font: 'bold 36px Georgia', fill: 'white'}); // see above
-	var game_width = 1000;
-	var game_height = 800;
+	var game_width = 800;
+	var game_height = 600;
 	var shoot_enabled = false;
 	var socket = new WebSocket('ws://130.89.231.61:9000','fris_en_fruitig');
-	var player_size = 50;
-	var tree_size = 70;
-	var bullet_size = 20;
+	var player_size = 20;
+	var tree_size = 40;
+	var bullet_size = 10;
     var player_color;
-
-    var player_id = 0;
-
-    var player_health;
 
 	// textures
 	var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
@@ -55,15 +51,17 @@ $(document).ready(function()
 	});
 
 	socket.onopen = function() {
-        $("#server-online").show();
+		console.log("Connection established");
+		$("body").css('background-color', '#0f0');
 	};
 
 	socket.onerror = function() {
-        $("#server-offline").show();
+		$("body").css('background-color', '#f00');
 	};
 
 	socket.onclose = function() {
-        $("#server-offline").show();
+		console.log("Connection closed");
+		$("body").css('background-color', '#000');
 	};
 
 
@@ -79,8 +77,6 @@ $(document).ready(function()
 		{
 			case "ok":
 				wait_screen();
-                player_id = parseInt(message.substr(index_keyword, message.length+1))+1;
-                console.log(message)
 				break;
 
 			case "start":
@@ -90,11 +86,6 @@ $(document).ready(function()
 			case "frame":
 				draw_frame(message.substr(index_keyword,message.length+1));
 				break;
-
-            case "gameover":
-                console.log(message);
-                game_over(message.substr(index_keyword,message.length+1));
-                break;
 		}
 	}
 
@@ -147,11 +138,10 @@ $(document).ready(function()
 	}
 
 	function draw_frame(message) {
-		//console.log(message);
+		console.log(message);
 		var entities = JSON.parse(message);
 
 		map.removeChildren(1);
-        var num_players = 1;
 		for (var i = 0; i < entities.length; i++)
 		{
 			var entity = entities[i];
@@ -159,16 +149,13 @@ $(document).ready(function()
 			{
 				case "player":
 					var player = new PIXI.Sprite(player_texture);
-					player.tint = 1/4 * player_id / num_players * 4 * parseInt('0x'+player_color);
-                    num_players++;
+					player.tint = 1/(3-i)*3 * parseInt('0x'+player_color);
 					player.anchor.x = player.anchor.y = 0.5;
 					player.width = player.height = player_size;
 					player.position.x = entity.x;
 					player.position.y = entity.y;
-					player.rotation = entity.angle - 0.5*Math.PI;
+					player.rotation = entity.angle;
 					map.addChild(player);
-                    player_health = draw_health(entity.health);
-                    map.addChild(player_health);
 					break;
 
 				case "tree":
@@ -186,40 +173,12 @@ $(document).ready(function()
 					bullet.width = bullet.height = bullet_size;
 					bullet.position.x = entity.x;
 					bullet.position.y = entity.y;
-					bullet.rotation = entity.angle - 0.5*Math.PI;
+					bullet.rotation = entity.angle;
 					map.addChild(bullet);
 					break;
 			}
 		}
 	}
-
-    function game_over(winner) {
-        console.log(winner);
-        var title = new PIXI.Text("GAME OVER!", {align: "center", font: 'bold 36px Georgia', fill: 'white'});
-        var text = new PIXI.Text("The winner is: "+winner, {align: "left", font: 'bold 24px Georgia', fill: 'white'});
-        title.anchor.x = title.anchor.x = 1;
-        title.position.x = game_width / 2;
-        title.position.y = 10;
-        text.anchor.x = text.anchor.x = 1;
-        text.position.x = game_width / 2;
-        text.position.y = 46;
-        map.addChild(title);
-        map.addChild(text);
-    }
-
-    function draw_health(health) {
-        var graphics = new PIXI.Graphics();
-
-        graphics.lineStyle(5, 0x000000, 1);
-        graphics.drawRect(30, game_height-260, 100, 30);
-
-        graphics.lineStyle(0, 0x000000, 1);
-        graphics.beginFill(0xff0000, 1);
-        graphics.drawRect(30, game_height-260, 100, 30);
-        graphics.endFill();
-
-        return graphics;
-    }
 
 	function draw() {
 		requestAnimFrame(draw);

@@ -37,7 +37,3 @@ canvas {
 #login-form label {
     color: #fff;
 }
-
-#server-online, #server-offline {
-    display: none;
-}
