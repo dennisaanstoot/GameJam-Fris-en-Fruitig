@@ -2,7 +2,7 @@
 
 int field_on_field(struct field field, unsigned int x, unsigned int y)
 {
-	if(field.width > x || 0 < x || field.height > y || 0 < y) 
+	if(field.width > x && 0 < x && field.height > y && 0 < y) 
 	{
 		return 1;
 	}

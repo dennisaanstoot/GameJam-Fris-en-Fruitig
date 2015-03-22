@@ -15,51 +15,80 @@
 #include "json.h"
 #include "entity.h"
 
+#define PLAYERS 2 
+
+#define WIDTH 800 
+#define HEIGHT 600
+
 char names[30][30];
-int a[20];
 unsigned player_amount;
 struct game* game;
-struct libwebsocket * sockets[2];
+struct libwebsocket * sockets[PLAYERS];
 
 void* game_thread(void* args)
 {
 	int i;
 	printf("Game on\n");
 	unsigned char start[] = "start 800 600 2";
-	size_t l = sizeof(start);
+	size_t size;
+
+	char* string;
+
+	struct entity * e;
 	
-	for(i = 0; i < 2; i++)
+	size_t l = sizeof(start);
+	json_object* jobj;
+	
+	for(i = 0; i < PLAYERS; i++)
 	{
 	    	libwebsocket_write(sockets[i], start, l-1,0);
 	}
 	while(!game_over(game))
 	{
 		game_tick(game);
-		json_object* jobj = json_frame(game);
+		jobj = json_frame(game);
 	
 		const char * json_string = json_object_to_json_string(jobj);
-		size_t size = strlen(json_string);
-		char* string = malloc(size + 7);
+		size = strlen(json_string);
+		string = (char*) malloc(size + 10);
 
-		strcpy(string, "frame ");
-		strcat(string,json_string);
-		
+		sprintf(string,"frame %s", json_string);
 		size = strlen(string);
 		
-		printf("JSON: %s\n", string);
+		// printf("JSON: %s\n", string);
 		
-		for(i = 0; i < 2; i++)
+		for(i = 0; i < PLAYERS; i++)
 		{
 			libwebsocket_write(sockets[i],string, size, 0);
 		}
-		
-		usleep(30000);
+
+//		free(string);
+
+//		json_object_put(jobj);
+	
+		usleep(15000);
 	}
 	printf("End game\n");
+	
 	struct list * e_list = game->entity_list;
+
+	e = game_get_winner(game);
+	struct player_info * info = e->info;
+	string = malloc(10 + strnlen(info->name, 30));
+
+	sprintf(string,"gameover %s", info->name);
+
+	size = strlen(string);
+
+	for(i = 0; i < PLAYERS; i++)
+	{
+		libwebsocket_write(sockets[i],string, size, 0);
+	}
+
+
 	for(i = 0; i < e_list->length; i++)
 	{
-		struct entity * e = e_list->array[i];
+		e = e_list->array[i];
 		switch(e->type) {
 		case PLAYER:
 			entity_player_destroy(e);
@@ -86,17 +115,17 @@ struct list * build_entity_list()
 	result->size = 50;
 	result->array = malloc(sizeof(void*) * result->size);
 	int i;
-	for(i = 0; i < 2; i++)
+	for(i = 0; i < PLAYERS; i++)
 	{
-		unsigned int x = rand() % 800;
-		unsigned int y = rand() % 600;
+		unsigned int x = rand() % WIDTH;
+		unsigned int y = rand() % HEIGHT;
 		e = entity_player_new(x, y, 0 , 0, x, y, names[i]);
 		list_add(result, e);
 	}
 	for(i = 0; i < 12; i++)
 	{
-		unsigned int x = rand() % 800;
-		unsigned int y = rand() % 600;
+		unsigned int x = rand() % WIDTH;
+		unsigned int y = rand() % HEIGHT;
 		e = entity_tree_new(x, y);
 		list_add(result, e);
 	}
@@ -109,8 +138,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 		enum libwebsocket_callback_reasons reason,
 		void *user, void *in, size_t len)
 {
-	unsigned char ok[] = "ok";
-    
+	char* ch;
 	char* string;
 	char* pch;
 	size_t l;
@@ -140,8 +168,11 @@ my_protocol_callback(struct libwebsocket_context *context,
 	    {
 		pch = strtok(NULL, " ");
 
-		l = sizeof(ok);
-		libwebsocket_write(wsi,ok,l-1,0);  
+		ch = malloc(9 * sizeof(char));
+		sprintf(ch, "ok %d", player_amount);
+
+		l = strlen(ch);
+		libwebsocket_write(wsi,ch,l,0);  
 
 		strncpy(names[player_amount],pch,30);
 		sockets[player_amount] = wsi;
@@ -150,10 +181,10 @@ my_protocol_callback(struct libwebsocket_context *context,
 
 	        player_amount++;
 		
-		if(player_amount == 2)
+		if(player_amount == PLAYERS)
 		{
-			field.width = 400;
-			field.height = 300;
+			field.width = 800;
+			field.height = 600;
 			entity_list = build_entity_list();
 			game = game_new(field, entity_list);
 			pthread_create(&thread, NULL, game_thread, NULL);
@@ -169,7 +200,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 		x = atoi(pch);
 		pch = strtok(NULL, " ");
 		y = atoi(pch);
-		for(i = 0; i < 2; i++)
+		for(i = 0; i < PLAYERS; i++)
 		{
 			if(wsi == sockets[i])
 			{
@@ -180,6 +211,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 				{
 					info->xd = x;
 					info->yd = y;
+					info->thrust = 1;
 				}
 				else if(b == 'r')
 				{

@@ -5,7 +5,7 @@
 void list_print(struct list * l)
 {
 	int i;
-	for(i < 0; i < l->length; i++)
+	for(i = 0; i < l->length; i++)
 	{
 		printf("%p, ", l->array[i]);
 	}
@@ -14,18 +14,21 @@ void list_print(struct list * l)
 
 void list_add(struct list * l, void * e)
 {
+	int i;
 	if(l->length >= l->size)
 	{
 		l->size = l->size * 2;
 		void ** old_array = l->array;
-		l->array = malloc(sizeof(void*) * l->size);
-		memcpy(&l->array, &old_array, l->length);
+		l->array = (void**) malloc(sizeof(void*) * l->size);
+		for(i = 0; i < l->length; i++)
+		{
+			l->array[i] = old_array[i]; 
+		}
 		free(old_array);
 	}
 	l->array[l->length] = e;
 	l->length++;
-
-	list_print(l);
+	printf("Size: %d \tLength: %d\n", l->size, l->length);
 }
 
 void list_remove(struct list * l, void * e)
@@ -38,14 +41,13 @@ void list_remove(struct list * l, void * e)
 			while(i < l->length -1)
 			{
 				l->array[i] = l->array[i+1];
+				i++;
 			}
 
 			l->length--;
 			return;
 		}
 	}
-
-	list_print(l);
 }
 
 

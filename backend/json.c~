@@ -37,7 +37,7 @@ json_object* json_frame(struct game* g)
 			jtype = json_object_new_string("player");
 			jx = json_object_new_int(e->x);
 			jy = json_object_new_int(e->y);
-			jangle = json_object_new_double(atan2((double) p_info->xv, (double) p_info->yv));
+			jangle = json_object_new_double(p_info->angle);
 			jhealth = json_object_new_int(p_info->health);
 			jname = json_object_new_string(p_info->name);
 
@@ -55,7 +55,7 @@ json_object* json_frame(struct game* g)
 			jtype = json_object_new_string("bullet");
 			jx = json_object_new_int(e->x);
 			jy = json_object_new_int(e->y);
-			jangle = json_object_new_double(atan2((double) p_info->xv, (double) p_info->yv));
+			jangle = json_object_new_double(M_PI + atan2(b_info->yv, b_info->xv));
 
 			json_object_object_add(jobj, "entity_type", jtype); 
 			json_object_object_add(jobj, "x", jx);
