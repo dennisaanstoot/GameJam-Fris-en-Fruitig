@@ -25,7 +25,7 @@ void* game_thread(void* args)
 {
 	int i;
 	printf("Game on\n");
-	char start[] = "start 400 300 2";
+	char start[] = "start 800 600 2";
 	size_t l = sizeof(start);
 	
 	for(i = 0; i < 2; i++)
@@ -54,7 +54,7 @@ void* game_thread(void* args)
 		}
 		
 		
-		usleep(20000);
+		usleep(50000);
 	}
 	printf("End game\n");
 	game = NULL;
@@ -67,13 +67,13 @@ struct list * build_entity_list()
 	struct entity* e;
 	result = malloc(sizeof(struct list));
 	result->length = 0;
-	result->size = 5;
+	result->size = 50;
 	result->array = malloc(sizeof(void*) * result->size);
 	int i;
 	for(i = 0; i < 2; i++)
 	{
-		unsigned int x = rand() % 400;
-		unsigned int y = rand() % 300;
+		unsigned int x = rand() % 800;
+		unsigned int y = rand() % 600;
 		e = entity_player_new(x, y, 0 , 0, x, y, names[i]);
 		list_add(result, e);
 	}

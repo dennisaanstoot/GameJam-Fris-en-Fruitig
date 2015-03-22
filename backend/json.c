@@ -55,7 +55,7 @@ json_object* json_frame(struct game* g)
 			jtype = json_object_new_string("bullet");
 			jx = json_object_new_int(e->x);
 			jy = json_object_new_int(e->y);
-			jangle = json_object_new_double(atan2((double) p_info->xv, (double) p_info->yv));
+			jangle = json_object_new_double(atan2((double) b_info->xv, (double) b_info->yv));
 
 			json_object_object_add(jobj, "entity_type", jtype); 
 			json_object_object_add(jobj, "x", jx);

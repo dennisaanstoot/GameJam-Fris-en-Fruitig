@@ -135,7 +135,7 @@ $(document).ready(function()
 		{
 			var player = new PIXI.Sprite(player_texture);
 			player_array.push(player);
-			player.tint = 1/i*3 * player_color;
+			player.tint = 1/i*3 * parseInt('0x'+player_color);
 			player.anchor.x = player.anchor.y = 0.5;
 			player.width = player.height = player_size;
 			map.addChild(player);
