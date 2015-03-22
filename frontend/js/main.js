@@ -1,5 +1,6 @@
 $(document).ready(function()
 {
+
 	music();
 
 	// turn off right click menu
@@ -20,8 +21,7 @@ $(document).ready(function()
 	var player_size = 20;
 	var tree_size = 40;
 	var bullet_size = 10;
-
-    var player_color = 'ffffff'
+    var player_color;
 
 	// textures
 	var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
@@ -51,6 +51,7 @@ $(document).ready(function()
 	{
 		event.preventDefault();
 		name = $("#username").val();
+        player_color = $("#color").val();
 		send_to_server("connect "+name);
 		$("#login-form").remove();
 	});
@@ -135,7 +136,8 @@ $(document).ready(function()
 		{
 			var player = new PIXI.Sprite(player_texture);
 			player_array.push(player);
-			player.tint = 1/i*3 * parseInt('0x'+player_color);
+            console.log(player_color);
+			player.tint = 1/(3-i)*3 * parseInt('0x'+player_color);
 			player.anchor.x = player.anchor.y = 0.5;
 			player.width = player.height = player_size;
 			map.addChild(player);
@@ -216,4 +218,5 @@ $(document).ready(function()
 		console.log("Send: "+message);
 		socket.send(message);
 	}
+
 });
