@@ -9,18 +9,19 @@ $(document).ready(function()
     });
 
     // variables constructions / initializations
-	var name, renderer, cooldown_start_time, loadingbar_width, map_width, map_height;
+	var name, renderer, cooldown_start_time, loadingbar_width, map_width, map_height, loadingbar;
 	var stage = new PIXI.Stage(0xff0000); // has to be in main scope for callbacks to work
-	var loadingbar = new PIXI.Graphics(); // see above
 	var map = new PIXI.DisplayObjectContainer(); // see above
 	var waiting_screen = new PIXI.Text("Waiting for other players",{font: 'bold 36px Georgia', fill: 'white'}); // see above
-	var game_width = window.innerWidth;
-	var game_height = window.innerHeight;
+	var game_width = 800;
+	var game_height = 600;
 	var shoot_enabled = false;
 	var socket = new WebSocket('ws://130.89.231.61:9000','fris_en_fruitig');
 	var player_size = 20;
 	var tree_size = 40;
 	var bullet_size = 10;
+
+    var player_color = 'ffffff'
 
 	// textures
 	var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
@@ -46,27 +47,29 @@ $(document).ready(function()
 
 	// attempt connecting to server with name
 
-	$("#connectForm").submit(function(event)
+	$("#login-form").submit(function(event)
 	{
 		event.preventDefault();
-		name = $("#name").val();
+		name = $("#username").val();
 		send_to_server("connect "+name);
-		$("#connectForm").remove();
+		$("#login-form").remove();
 	});
 
 	socket.onopen = function() {
 		console.log("Connection established");
 		$("body").css('background-color', '#0f0');
-	}
+	};
 
 	socket.onerror = function() {
 		$("body").css('background-color', '#f00');
-	}
+	};
 
 	socket.onclose = function() {
 		console.log("Connection closed");
 		$("body").css('background-color', '#000');
-	}
+	};
+
+
 
 	var message;
 	socket.onmessage = function(event) {
@@ -132,7 +135,7 @@ $(document).ready(function()
 		{
 			var player = new PIXI.Sprite(player_texture);
 			player_array.push(player);
-			player.tint = 1/i*3 * 0xffffff;
+			player.tint = 1/i*3 * parseInt('0x'+player_color);
 			player.anchor.x = player.anchor.y = 0.5;
 			player.width = player.height = player_size;
 			map.addChild(player);
@@ -143,6 +146,13 @@ $(document).ready(function()
 			bullet.width = bullet.height = bullet_size;
 			map.addChild(bullet);
 		}
+
+		// create loadingbar
+		loadingbar = new PIXI.Graphics(); // see above
+		loadingbar.beginFill(0x1D428A);
+		loadingbar.drawRect(5,map_height-5, 60, 15);
+		loadingbar_width = 60;
+		map.addChild(loadingbar);
 
 		var player_amount_text = new PIXI.Text("Players: "+player_amount, {font: 'normal 12px Georgia', fill: 'white'});
 		player_amount_text.anchor.x = player_amount_text.anchor.y = 1;
@@ -161,6 +171,7 @@ $(document).ready(function()
 
 		var player_counter = 0;
 		var bullet_counter = 0;
+
 		for (var i = 0; i < entities.length; i++)
 		{
 			var entity = entities[i];
@@ -187,12 +198,11 @@ $(document).ready(function()
 					var bullet = bullet_array[bullet_counter];
 					bullet.position.x = entity.x;
 					bullet.position.y = entity.y;
-					bullet.position = entity.angle;
+					bullet.rotation = entity.angle;
 					bullet_counter++;
 					break;
 			}
 		}
-		//draw();
 	}
 	
 	function draw() {
@@ -218,17 +228,14 @@ $(document).ready(function()
 	function shootCooldown()
 	{
 		cooldown_start_time = Date.now();
+		loadingbar.visible = true;
 		shoot_enabled = false;
-		loadingbar.beginFill(0x1D428A);
-		loadingbar.drawRect(0,map_height, 0, 15);
-		loadingbar_width = 60;
-		map.addChild(loadingbar);
 	}
 
 	function enableShoot()
 	{
 		shoot_enabled = true;
-		map.removeChild(loadingbar);
+		loadingbar.visible = false;
 	}
 
 	function send_to_server(message)
