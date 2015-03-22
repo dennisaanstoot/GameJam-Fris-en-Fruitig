@@ -10,7 +10,7 @@ $(document).ready(function()
     });
 
     // variables constructions / initializations
-	var name, renderer, cooldown_start_time, loadingbar_width, map_width, map_height, loadingbar;
+	var name, renderer, map_width, map_height, game_name;
 	var stage = new PIXI.Stage(0xff0000); // has to be in main scope for callbacks to work
 	var map = new PIXI.DisplayObjectContainer(); // see above
 	var waiting_screen = new PIXI.Text("Waiting for other players",{font: 'bold 36px Georgia', fill: 'white'}); // see above
@@ -33,8 +33,6 @@ $(document).ready(function()
 	game_name.anchor.x = game_name.anchor.y = 0.5;
 	game_name.position.x = game_width/2;
 	game_name.position.y = 15;
-	stage.addChild(game_name);
-
 
 	// set game screen to full size (also to enable mobile)
 
@@ -130,8 +128,10 @@ $(document).ready(function()
 		var player_amount_text = new PIXI.Text("Players: "+player_amount, {font: 'normal 12px Georgia', fill: 'white'});
 		player_amount_text.anchor.x = player_amount_text.anchor.y = 1;
 		player_amount_text.position.x = map_width-5;
-		player_amount_text.position.y = map_height-5;
+		player_amount_text.position.y = map_height-15;
 		map.addChild(player_amount_text);
+
+		map.addChild(game_name);
 
 		document.body.appendChild(renderer.view);
 		draw();
