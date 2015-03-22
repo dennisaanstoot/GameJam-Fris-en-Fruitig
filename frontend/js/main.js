@@ -144,6 +144,7 @@ $(document).ready(function()
 			bullet_array.push(bullet);
 			bullet.anchor.x = bullet.anchor.y = 0.5;
 			bullet.width = bullet.height = bullet_size;
+			bullet.visible = false;
 			map.addChild(bullet);
 		}
 
@@ -155,8 +156,6 @@ $(document).ready(function()
 
 		document.body.appendChild(renderer.view);
 		draw();
-		shoot_enabled = true;
-		setTimeout(enableShoot(),3000);
 	}
 
 	function draw_frame(message) {
@@ -192,6 +191,7 @@ $(document).ready(function()
 					bullet.position.x = entity.x;
 					bullet.position.y = entity.y;
 					bullet.rotation = entity.angle;
+					bullet.visible = true;
 					bullet_counter++;
 					break;
 			}
