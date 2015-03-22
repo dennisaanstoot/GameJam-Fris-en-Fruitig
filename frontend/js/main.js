@@ -178,13 +178,13 @@ $(document).ready(function()
 				case "player":
                     var pl_sprt = null;
                     if(entity.angle <= 1/4*Math.PI && entity.angle > (1+3/4)*Math.PI) {
-                        pl_sprt = player_right;
-                    } else if(entity.angle > 1/4*Math.PI && entity.angle <= (3/4)*Math.PI) {
-                        pl_sprt = player_front;
-                    } else if(entity.angle > 3/4*Math.PI && entity.angle <= (1+1/4)*Math.PI) {
                         pl_sprt = player_left;
-                    } else {
+                    } else if(entity.angle > 1/4*Math.PI && entity.angle <= (3/4)*Math.PI) {
                         pl_sprt = player_back;
+                    } else if(entity.angle > 3/4*Math.PI && entity.angle <= (1+1/4)*Math.PI) {
+                        pl_sprt = player_right;
+                    } else {
+                        pl_sprt = player_front;
                     }
 					var player = new PIXI.Sprite(pl_sprt);
 					living_players.push(player.id);
@@ -194,7 +194,7 @@ $(document).ready(function()
 					player.width = player.height = player_size;
 					player.position.x = entity.x;
 					player.position.y = entity.y;
-					player.rotation = entity.angle - 0.5*Math.PI;
+					//player.rotation = entity.angle - 0.5*Math.PI;
 					map.addChild(player);
                     if(num_players == player_id) {
                         player_health = draw_health(entity.health);
