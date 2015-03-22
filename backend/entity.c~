@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 
+#include "list.h"
 #include "field.h"
 #include "game.h"
 #include "entity.h"
@@ -82,8 +83,8 @@ void player_tick(struct entity * e, struct game * game)
 	double xv = cos(a) * 2.0;
 	double yv = sin(a) * 2.0;
 
-	info->xv += (int) xv;
-	info->yv += (int) yv;
+	info->xv -= (int) xv;
+	info->yv -= (int) yv;
 
 	e->x += info->xv;
 	e->y += info->yv;
@@ -97,7 +98,7 @@ void bullet_tick(struct entity * e, struct game * game)
 	e->y += info->yv;
 }
 
-struct entity * entity_player_shoot(struct entity * e, struct game * g, unsigned int x, unsigned int y)
+void entity_player_shoot(struct entity * e, struct game * g, unsigned int x, unsigned int y)
 {
 	struct list * e_list = g->entity_list;
 	double a = atan2(e->y - y, e->x - x);
@@ -107,6 +108,7 @@ struct entity * entity_player_shoot(struct entity * e, struct game * g, unsigned
 
 	struct entity * bullet = entity_bullet_new(e->x, e->y, xv, yv);
 
+	list_add(e_list, bullet);
 }
 
 void entity_tick(struct entity * e, struct game * game)

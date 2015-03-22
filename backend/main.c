@@ -25,7 +25,7 @@ void* game_thread(void* args)
 {
 	int i;
 	printf("Game on\n");
-	char start[] = "start 400 300 4";
+	char start[] = "start 400 300 2";
 	size_t l = sizeof(start);
 	
 	for(i = 0; i < 2; i++)
@@ -37,7 +37,7 @@ void* game_thread(void* args)
 		game_tick(game);
 		json_object* jobj = json_frame(game);
 	
-		char * json_string = json_object_to_json_string(jobj);
+		const char * json_string = json_object_to_json_string(jobj);
 		size_t size = strlen(json_string);
 		char* string = malloc(size + 7);
 
@@ -45,10 +45,9 @@ void* game_thread(void* args)
 		strcat(string,json_string);
 		
 		size = strlen(string);
-
+		
 		printf("JSON: %s\n", string);
-
-
+		
 		for(i = 0; i < 2; i++)
 		{
 			libwebsocket_write(sockets[i],string, size, 0);
@@ -75,9 +74,7 @@ struct list * build_entity_list()
 	{
 		unsigned int x = rand() % 400;
 		unsigned int y = rand() % 300;
-		printf("Name %d: %s\n", i+1, names[i]);
 		e = entity_player_new(x, y, 0 , 0, x, y, names[i]);
-		printf("Name %d: %s\n", i+1, names[i]);
 		list_add(result, e);
 	}
 	return result;
@@ -108,12 +105,13 @@ my_protocol_callback(struct libwebsocket_context *context,
 	switch (reason) {
 	
 	case LWS_CALLBACK_ESTABLISHED:
-            printf("connection established\n");
+            printf("Connection established\n");
       	    break;
 	case LWS_CALLBACK_RECEIVE:
 	    string = (char*) in;
 	    
 	    pch = strtok(string," ");
+
 
 	    if(strncmp(pch,"connect",8) == 0)
 	    {
@@ -155,7 +153,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 				struct list * e_list = game->entity_list;
 				struct entity * e = e_list->array[i];
 				struct player_info * info = (struct player_info *) e->info;
-				if(b = 'l')
+				if(b == 'l')
 				{
 					info->xd = x;
 					info->yd = y;
@@ -200,7 +198,7 @@ int main(int argc, char** arg)
 	  	"fris_en_fruitig",
 		my_protocol_callback,
 		10000,
-		10000,
+		100000,
 		0,
 		NULL,
 		NULL,
