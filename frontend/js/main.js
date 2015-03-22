@@ -1,7 +1,7 @@
 $(document).ready(function()
 {
 
-	music();
+
 
 	// turn off right click menu
 	window.addEventListener("contextmenu", function(e) {
@@ -27,7 +27,7 @@ $(document).ready(function()
 	var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
 	var tree_texture = PIXI.Texture.fromImage("sprites/tree.png");
 	var bullet_texture = PIXI.Texture.fromImage("sprites/bullet.png");
-	
+
 	// Write down the game name
 	var game_name = new PIXI.Text("Fris en dodelijk",{font: 'bold 36px Georgia', fill: 'white'});
 	game_name.anchor.x = game_name.anchor.y = 0.5;
@@ -179,7 +179,7 @@ $(document).ready(function()
 			}
 		}
 	}
-	
+
 	function draw() {
 		requestAnimFrame(draw);
 		renderer.render(stage);

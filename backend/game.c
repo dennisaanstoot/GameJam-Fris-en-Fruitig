@@ -31,7 +31,6 @@ void game_tick(struct game * g)
 
 int game_over(struct game * g)
 {
-	return 0;
 	int player_alive = 0;
 	int i;
 	struct list * l = g->entity_list;
@@ -50,6 +49,8 @@ int game_over(struct game * g)
 		
 	}
 	if(player_alive <= 2)
+	{
 		return 1;
+	}
 	return 0;
 }
