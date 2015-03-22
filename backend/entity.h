@@ -13,8 +13,8 @@ struct entity {
 };
 
 struct player_info {
-	unsigned int xv;
-	unsigned int yv;
+	int xv;
+	int yv;
 	unsigned int xd;
 	unsigned int yd;
 	int health;
@@ -22,15 +22,16 @@ struct player_info {
 };
 
 struct bullet_info {
-	unsigned int xv;
-	unsigned int yv;
+	int xv;
+	int yv;
+	unsigned int ticks;
 };
 
-struct entity* entity_player_new(unsigned int x, unsigned int y, unsigned int xv, unsigned int yv, unsigned int xd, unsigned int yd, char* name);
+struct entity* entity_player_new(unsigned int x, unsigned int y, int xv, int yv, unsigned int xd, unsigned int yd, char* name);
 
 struct entity* entity_tree_new(unsigned int x, unsigned int y);
 
-struct entity* entity_bullet_new(unsigned int x, unsigned int y, unsigned int xv, unsigned int yv);
+struct entity* entity_bullet_new(unsigned int x, unsigned int y, int xv, int yv);
 
 void entity_player_destroy(struct entity * e);
 

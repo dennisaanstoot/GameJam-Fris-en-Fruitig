@@ -55,7 +55,7 @@ void* game_thread(void* args)
 		}
 		
 		
-		sleep(1);
+		usleep(20000);
 	}
 	printf("End game\n");
 	game = NULL;
@@ -148,7 +148,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 		x = atoi(pch);
 		pch = strtok(NULL, " ");
 		y = atoi(pch);
-		for(i = 0; i < 4; i++)
+		for(i = 0; i < 2; i++)
 		{
 			if(wsi == sockets[i])
 			{
@@ -162,7 +162,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 				}
 				else if(b == 'r')
 				{
-
+					entity_player_shoot(e,game,x,y);
 				}
 				break;
 			}
