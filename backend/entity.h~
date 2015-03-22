@@ -39,7 +39,7 @@ void entity_tree_destroy(struct entity * e);
 
 void entity_bullet_destroy(struct entity * e);
 
-void entity_bullet_shoot(struct entity *e, struct game *g, unsigned int x, unsigned int y);
+void entity_player_shoot(struct entity *e, struct game *g, unsigned int x, unsigned int y);
 
 void entity_tick(struct entity * e, struct game * game);
 

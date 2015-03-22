@@ -37,7 +37,7 @@ void list_remove(struct list * l, void * e)
 		{
 			while(i < l->length -1)
 			{
-				l->array[i] = l->array[i+1]
+				l->array[i] = l->array[i+1];
 			}
 
 			l->length--;

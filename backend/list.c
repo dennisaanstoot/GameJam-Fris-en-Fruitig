@@ -5,7 +5,7 @@
 void list_print(struct list * l)
 {
 	int i;
-	for(i < 0; i < l->length; i++)
+	for(i = 0; i < l->length; i++)
 	{
 		printf("%p, ", l->array[i]);
 	}

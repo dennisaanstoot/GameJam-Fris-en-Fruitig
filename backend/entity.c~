@@ -11,7 +11,7 @@
 
 int distance(struct entity * e1, struct entity * e2)
 {
-	return sqrt(pow(e1->x - e2->x,2) + pow(e1->y - e2->y,2));
+	return sqrt(pow((int) e1->x - (int)e2->x,2) + pow( (int) e1->y - (int) e2->y,2));
 }
 
 struct entity* entity_player_new(unsigned int x, unsigned int y, double xv, double yv, unsigned int xd, unsigned int yd, char* name )
@@ -26,6 +26,7 @@ struct entity* entity_player_new(unsigned int x, unsigned int y, double xv, doub
 	info->xd = xd;
 	info->yd = yd;
 	info->health = 100;
+	info->timeout = 0;
 	char* string = malloc(30);
 	strncpy(string, name, 29);
 	info->name = string;
@@ -79,7 +80,8 @@ void entity_tree_destroy(struct entity * e)
 void player_tick(struct entity * e, struct game * game)
 {
 	struct player_info * info = (struct player_info*) e->info;
-
+	struct entity * e2;
+	int i;
 
 	if(!field_on_field(game->field, e->x, e->y) )
 	{
@@ -104,9 +106,32 @@ void player_tick(struct entity * e, struct game * game)
 		info->xv = 3.0;
         if(info->yv > 3.0)
 		info->yv = 3.0;	
+	
+	if(info->xv < -3.0)
+		info->xv = -3.0;
+        if(info->yv < -3.0)
+		info->yv = -3.0;	
+
+
+	for(i = 0; i < game->entity_list->length; i++)
+	{
+		e2 = game->entity_list->array[i];
+		if(e2->type == TREE && distance(e,e2) < 20) {
+			if(info->xv > 1.0)
+				info->xv = 1.0;
+		        if(info->yv > 1.0)
+				info->yv = 1.0;	
+
+			if(info->xv < -1.0)
+				info->xv = -1.0;
+		        if(info->yv < -1.0)
+				info->yv = -1.0;	
+		}
+	}
 
 	e->x += (int) info->xv;
 	e->y += (int) info->yv;
+	info->timeout++;
 }
 
 void bullet_tick(struct entity * e, struct game * g)
@@ -128,14 +153,18 @@ void bullet_tick(struct entity * e, struct game * g)
 		list_remove(e_list, e);
 		entity_bullet_destroy(e);
 	}
-	else if(info->ticks > 30) 
+	else if(info->ticks > 15) 
 	{ 
 		for(i = 0; i < e_list->length; i++)
 		{
 			e2 = e_list->array[i];
-			if(e2->type == PLAYER && distance(e,e2) < 4) {
+			if(e2->type == PLAYER && distance(e,e2) < 20) {
 				p_info = (struct player_info*) e2->info;
 				p_info->health -= 10;
+				list_remove(e_list, e);
+				entity_bullet_destroy(e);
+			}
+			else if(e2->type == TREE && distance(e,e2) < 20) {
 				list_remove(e_list, e);
 				entity_bullet_destroy(e);
 			}
@@ -145,42 +174,25 @@ void bullet_tick(struct entity * e, struct game * g)
 
 void tree_tick(struct entity * e, struct game * g)
 {
-	struct player_info * p_info;
-	struct list * e_list = g->entity_list;
-	struct entity * e2;
-	int i;
-	for(i = 0; i < e_list->length; i++)
-	{
-		e2 = e_list->array[i];
-		if(distance(e,e2) < 4) {
-			switch(e2->type) {
-			case(BULLET):
-				list_remove(e_list, e2);
-				entity_bullet_destroy(e2);
-				break;
-			case(PLAYER):
-				p_info = (struct player_info *) e2->info;
-				if(p_info->xv > 1.0)
-					p_info->xv = 1.0;
-				if(p_info->yv > 1.0)
-					p_info->yv = 1.0;
-				break;
-			}	
-		}
-	}
 }
 
 void entity_player_shoot(struct entity * e, struct game * g, unsigned int x, unsigned int y)
 {
-	struct list * e_list = g->entity_list;
-	double a = atan2(e->y - y, e->x - x);
+	struct player_info * p_info = e->info;
+	if(p_info->timeout > 100) {
+		struct list * e_list = g->entity_list;
+
+		double a = atan2( (int) y - (int) e->y, (int) x - (int) e->x);
+		
+		double xv = 4.0 * cos(a);
+		double yv = 4.0 * sin(a);
 	
-	int xv = 3.0 * cos(a);
-	int yv = 3.0 * sin(a);
+		struct entity * bullet = entity_bullet_new(e->x, e->y, xv, yv);
+	
+		list_add(e_list, bullet);
 
-	struct entity * bullet = entity_bullet_new(e->x, e->y, xv, yv);
-
-	list_add(e_list, bullet);
+		p_info->timeout = 0;
+	}
 }
 
 void entity_tick(struct entity * e, struct game * game)

@@ -41,14 +41,15 @@ int game_over(struct game * g)
 		if(entity->type == PLAYER)
 		{
 			struct player_info * info = (struct player_info*) entity->info;
-			if(info->health <= 0)
+			if(info->health >= 0)
 			{
 				player_alive++;
 			}
 		}
 		
 	}
-	if(player_alive <= 2)
+	printf("Alive: %d\n", player_alive);
+	if(player_alive < 2)
 	{
 		return 1;
 	}

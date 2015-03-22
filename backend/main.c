@@ -46,14 +46,14 @@ void* game_thread(void* args)
 		
 		size = strlen(string);
 		
-		// printf("JSON: %s\n", string);
+		printf("JSON: %s\n", string);
 		
 		for(i = 0; i < 2; i++)
 		{
 			libwebsocket_write(sockets[i],string, size, 0);
 		}
 		
-		usleep(50000);
+		usleep(30000);
 	}
 	printf("End game\n");
 	struct list * e_list = game->entity_list;
@@ -93,7 +93,7 @@ struct list * build_entity_list()
 		e = entity_player_new(x, y, 0 , 0, x, y, names[i]);
 		list_add(result, e);
 	}
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < 12; i++)
 	{
 		unsigned int x = rand() % 800;
 		unsigned int y = rand() % 600;
@@ -136,7 +136,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 	    pch = strtok(string," ");
 
 
-	    if(strncmp(pch,"connect",8) == 0)
+	    if(game == NULL && strncmp(pch,"connect",8) == 0)
 	    {
 		pch = strtok(NULL, " ");
 

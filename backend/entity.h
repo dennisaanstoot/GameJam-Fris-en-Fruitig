@@ -19,6 +19,7 @@ struct player_info {
 	unsigned int yd;
 	int health;
 	char* name;
+	unsigned int timeout;
 };
 
 struct bullet_info {

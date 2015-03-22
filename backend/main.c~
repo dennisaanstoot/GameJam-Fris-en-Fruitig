@@ -53,7 +53,7 @@ void* game_thread(void* args)
 			libwebsocket_write(sockets[i],string, size, 0);
 		}
 		
-		usleep(50000);
+		usleep(30000);
 	}
 	printf("End game\n");
 	struct list * e_list = game->entity_list;
@@ -136,7 +136,7 @@ my_protocol_callback(struct libwebsocket_context *context,
 	    pch = strtok(string," ");
 
 
-	    if(strncmp(pch,"connect",8) == 0)
+	    if(game == NULL && strncmp(pch,"connect",8) == 0)
 	    {
 		pch = strtok(NULL, " ");
 
