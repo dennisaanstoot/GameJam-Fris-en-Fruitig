@@ -1,12 +1,12 @@
 
-CC=clang
+CC=gcc
 
-LFLAGS= -ljson -lwebsockets -lm
+LFLAGS= -ljson-c -lwebsockets -lm -lpthread
 
 all: server
 
-server: list.o entity.o json.o game.o main.o
-	$(CC) entity.o game.o main.o list.o $(LFLAGS) -o server -g
+server: list.o entity.o game.o json.o main.o
+	$(CC) entity.o game.o main.o json.o list.o $(LFLAGS) -o server -g
 
 main.o: main.c
 	$(CC) -g -c main.c

@@ -1,8 +1,9 @@
 struct list {
-	void* e;
-	struct list* next;
+	void ** array;
+	unsigned int size;
+	unsigned int length;
 };
 
 void list_add(struct list * list, void * e);
-struct list * list_remove(struct list * list, void * e);
+void list_remove(struct list * list, void * e);
 
