@@ -104,8 +104,8 @@ void entity_player_shoot(struct entity * e, struct game * g, unsigned int x, uns
 	struct list * e_list = g->entity_list;
 	double a = atan2(e->y - y, e->x - x);
 	
-	int xv = 4.0 * cos(a);
-	int yv = 4.0 * sin(a);
+	int xv = 3.0 * cos(a);
+	int yv = 3.0 * sin(a);
 
 	struct entity * bullet = entity_bullet_new(e->x, e->y, xv, yv);
 

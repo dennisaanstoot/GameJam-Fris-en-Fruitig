@@ -37,6 +37,7 @@ struct entity* entity_bullet_new(unsigned int x, unsigned int y, int xv, int yv)
 	info->xv = xv;
 	info->yv = yv;
 	info->ticks = 0;
+	result->info = info;
 	return result;
 }
 

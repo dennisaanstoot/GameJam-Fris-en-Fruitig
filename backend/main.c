@@ -54,7 +54,7 @@ void* game_thread(void* args)
 		}
 		
 		
-		usleep(20000);
+		usleep(25000);
 	}
 	printf("End game\n");
 	game = NULL;

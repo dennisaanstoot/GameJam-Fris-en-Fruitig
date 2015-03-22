@@ -8,8 +8,10 @@ void list_add(struct list * l, void * e)
 	if(l->length >= l->size)
 	{
 		unsigned int size = l->size * 2;
-		free(l->array);
+		void ** old_array = l->array;
 		l->array = malloc(sizeof(void*) * size);
+		memcpy(l->array, old_array, l->length);
+		free(old_array);
 	}
 	l->array[l->length] = e;
 	l->length++;
