@@ -27,10 +27,6 @@ $(document).ready(function()
 	var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
 	var tree_texture = PIXI.Texture.fromImage("sprites/tree.png");
 	var bullet_texture = PIXI.Texture.fromImage("sprites/bullet.png");
-
-	// object arrays
-	var player_array = [];
-	var bullet_array = [];
 	
 	// Write down the game name
 	var game_name = new PIXI.Text("Fris en dodelijk",{font: 'bold 36px Georgia', fill: 'white'});
@@ -131,25 +127,6 @@ $(document).ready(function()
 		background.height = map_height;
 		map.addChild(background);
 
-		//fill player array
-		for (var i=0;i<player_amount;i++)
-		{
-			var player = new PIXI.Sprite(player_texture);
-			player_array.push(player);
-            console.log(player_color);
-			player.tint = 1/(3-i)*3 * parseInt('0x'+player_color);
-			player.anchor.x = player.anchor.y = 0.5;
-			player.width = player.height = player_size;
-			map.addChild(player);
-
-			var bullet = new PIXI.Sprite(bullet_texture);
-			bullet_array.push(bullet);
-			bullet.anchor.x = bullet.anchor.y = 0.5;
-			bullet.width = bullet.height = bullet_size;
-			bullet.visible = false;
-			map.addChild(bullet);
-		}
-
 		var player_amount_text = new PIXI.Text("Players: "+player_amount, {font: 'normal 12px Georgia', fill: 'white'});
 		player_amount_text.anchor.x = player_amount_text.anchor.y = 1;
 		player_amount_text.position.x = map_width-5;
@@ -161,22 +138,24 @@ $(document).ready(function()
 	}
 
 	function draw_frame(message) {
+		console.log(message);
 		var entities = JSON.parse(message);
 
-		var player_counter = 0;
-		var bullet_counter = 0;
-
+		map.removeChildren(1);
 		for (var i = 0; i < entities.length; i++)
 		{
 			var entity = entities[i];
 			switch(entity.entity_type)
 			{
 				case "player":
-					var player = player_array[player_counter];
+					var player = new PIXI.Sprite(player_texture);
+					player.tint = 1/(3-i)*3 * parseInt('0x'+player_color);
+					player.anchor.x = player.anchor.y = 0.5;
+					player.width = player.height = player_size;
 					player.position.x = entity.x;
 					player.position.y = entity.y;
 					player.rotation = entity.angle;
-					player_counter++;
+					map.addChild(player);
 					break;
 
 				case "tree":
@@ -189,12 +168,13 @@ $(document).ready(function()
 					break;
 
 				case "bullet":
-					var bullet = bullet_array[bullet_counter];
+					var bullet = new PIXI.Sprite(bullet_texture);
+					bullet.anchor.x = bullet.anchor.y = 0.5;
+					bullet.width = bullet.height = bullet_size;
 					bullet.position.x = entity.x;
 					bullet.position.y = entity.y;
 					bullet.rotation = entity.angle;
-					bullet.visible = true;
-					bullet_counter++;
+					map.addChild(bullet);
 					break;
 			}
 		}
