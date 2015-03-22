@@ -17,13 +17,14 @@ var pixi_assets = [
     "sprites/tree_orange_1.png",
     "sprites/waiting.png",
     "sprites/hotdog.png",
-    "sprites/explosion.json"
+    //"sprites/explosion.json"
+    "sprites/health_pill.png"
     ];
 
 var sounds = [
     //{src: 'music/BgmBa4Darkon.mp3', name: 'darkon'},
     //{src: 'music/BgmTh6Flying.mp3', name: 'flying'},
-    {src: 'music/bullet_default.mp3', name: 'bullet_default'}
+    //{src: 'music/bullet_default.mp3', name: 'bullet_default'}
 ];
 
 

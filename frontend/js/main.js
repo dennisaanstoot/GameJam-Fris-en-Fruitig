@@ -35,12 +35,13 @@ $(document).ready(function()
 	var tree_texture = PIXI.Texture.fromImage("sprites/tree.png");
 	var bullet_texture = PIXI.Texture.fromImage("sprites/bullet.png");
     var hotdog_texture = PIXI.Texture.fromImage("sprites/hotdog.png");
+    var health_pill_texture = PIXI.Texture.fromImage("sprites/health_pill.png");
     var explosionTextures = [];
-    for (var i=0; i < 26; i++)
-    {
-        var texture = PIXI.Texture.fromFrame("Explosion_Sequence_A " + (i+1) + ".png");
-        explosionTextures.push(texture);
-    };
+    //for (var i=0; i < 26; i++)
+    //{
+    //    var texture = PIXI.Texture.fromFrame("Explosion_Sequence_A " + (i+1) + ".png");
+    //    explosionTextures.push(texture);
+    //};
 
 
 	// Write down the game name
@@ -207,7 +208,7 @@ $(document).ready(function()
 					break;
 
                 case "health_crate":
-                    var health_crate = new PIXI.Sprite(hotdog_texture);
+                    var health_crate = new PIXI.Sprite(health_pill_texture);
                     health_crate.anchor.x = health_crate.anchor.y = 0.5;
                     health_crate.width = health_crate.height = powerup_size;
                     health_crate.position.x = entity.x;
