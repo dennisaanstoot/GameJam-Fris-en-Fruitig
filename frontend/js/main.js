@@ -21,7 +21,7 @@ $(document).ready(function()
 	var socket = new WebSocket('ws://130.89.231.61:9000','fris_en_fruitig');
 	var player_size = 50;
 	var tree_size = 100;
-	var bullet_size = 30;
+	var bullet_size = 50;
     var powerup_size = 40;
     var player_color;
 
@@ -32,8 +32,8 @@ $(document).ready(function()
 
 	// textures
 	var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
-	var tree_texture = PIXI.Texture.fromImage("sprites/tree.png");
-	var bullet_texture = PIXI.Texture.fromImage("sprites/bullet.png");
+	var tree_texture = PIXI.Texture.fromImage("sprites/tree_brown_1.png");
+	var bullet_texture = PIXI.Texture.fromImage("sprites/fireball.png");
     var hotdog_texture = PIXI.Texture.fromImage("sprites/hotdog.png");
     var health_pill_texture = PIXI.Texture.fromImage("sprites/health_pill.png");
     var explosionTextures = [];
@@ -124,7 +124,7 @@ $(document).ready(function()
 		$("body").css('background-color', '#000');
 		renderer = PIXI.autoDetectRenderer(game_width, game_height);
 
-		var lava = PIXI.Texture.fromImage("sprites/lava_2.png");
+		var lava = PIXI.Texture.fromImage("sprites/lava_new.png");
 		var game_background = new PIXI.TilingSprite(lava);
 		game_background.width = game_width;
 		game_background.height = game_height;
@@ -138,7 +138,7 @@ $(document).ready(function()
 		stage.addChild(map);
 
 		//playing screen background
-		var floor = PIXI.Texture.fromImage("sprites/floor.png");
+		var floor = PIXI.Texture.fromImage("sprites/floor_new.png");
 		var background = new PIXI.Sprite(floor);
 		background.width = map_width;
 		background.height = map_height;

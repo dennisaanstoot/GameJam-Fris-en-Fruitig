@@ -5,10 +5,13 @@
 
 var pixi_assets = [
     "sprites/bullet.png",
+    "sprites/fireball.png",
     "sprites/floor.png",
+    "sprites/floor_new.png",
     "sprites/lava.png",
     "sprites/lava_1.png",
     "sprites/lava_2.png",
+    "sprites/lava_new.png",
     "sprites/pillar.png",
     "sprites/soldier.png",
     "sprites/tree.png",
