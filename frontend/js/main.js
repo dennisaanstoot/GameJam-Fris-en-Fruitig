@@ -61,11 +61,11 @@ $(document).ready(function()
 
 	var message;
 	socket.onmessage = function(event) {
-		console.log(event);
+		//console.log(event);
 		message = event.data;
 		var index_keyword = message.indexOf(" ");
 		var keyword = message.substr(0,index_keyword);
-		console.log("Receive: "+message);
+		//console.log("Receive: "+message);
 		switch (keyword)
 		{
 			case "ok":
@@ -139,6 +139,7 @@ $(document).ready(function()
 		var bullet_texture = PIXI.Texture.fromImage("sprites/bullet.png");
 
 		player_counter = 2; // semi-random value to generate nice colours for players
+		map.removeChildren(1);
 		for (var i = 0; i < entities.length; i++)
 		{
 			var entity = entities[i];
