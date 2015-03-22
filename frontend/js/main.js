@@ -147,13 +147,6 @@ $(document).ready(function()
 			map.addChild(bullet);
 		}
 
-		// create loadingbar
-		loadingbar = new PIXI.Graphics(); // see above
-		loadingbar.beginFill(0x1D428A);
-		loadingbar.drawRect(5,map_height-5, 60, 15);
-		loadingbar_width = 60;
-		map.addChild(loadingbar);
-
 		var player_amount_text = new PIXI.Text("Players: "+player_amount, {font: 'normal 12px Georgia', fill: 'white'});
 		player_amount_text.anchor.x = player_amount_text.anchor.y = 1;
 		player_amount_text.position.x = map_width-5;
@@ -206,8 +199,6 @@ $(document).ready(function()
 	}
 	
 	function draw() {
-		var now = Date.now();
-		loadingbar.width = ((now-cooldown_start_time)/3000)*loadingbar_width;
 		requestAnimFrame(draw);
 		renderer.render(stage);
 	}
@@ -217,25 +208,7 @@ $(document).ready(function()
 	}
 
 	stage.rightclick = function(event) {
-		if (shoot_enabled)
-		{
-			send_to_server("input r "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
-			shootCooldown();
-			setTimeout(enableShoot(),3000);
-		}
-	}
-
-	function shootCooldown()
-	{
-		cooldown_start_time = Date.now();
-		loadingbar.visible = true;
-		shoot_enabled = false;
-	}
-
-	function enableShoot()
-	{
-		shoot_enabled = true;
-		loadingbar.visible = false;
+		send_to_server("input r "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
 	}
 
 	function send_to_server(message)
