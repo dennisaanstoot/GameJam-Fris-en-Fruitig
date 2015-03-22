@@ -21,7 +21,11 @@ var pixi_assets = [
     "sprites/waiting.png",
     "sprites/hotdog.png",
     //"sprites/explosion.json"
-    "sprites/health_pill.png"
+    "sprites/health_pill.png",
+    "sprites/right.png",
+    "sprites/down.png",
+    "sprites/left.png",
+    "sprites/top.png",
     ];
 
 var sounds = [

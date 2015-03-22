@@ -36,6 +36,12 @@ $(document).ready(function()
 	var bullet_texture = PIXI.Texture.fromImage("sprites/fireball.png");
     var hotdog_texture = PIXI.Texture.fromImage("sprites/hotdog.png");
     var health_pill_texture = PIXI.Texture.fromImage("sprites/health_pill.png");
+
+    var player_right = PIXI.Texture.fromImage("sprites/right.png");
+    var player_front = PIXI.Texture.fromImage("sprites/down.png");
+    var player_left = PIXI.Texture.fromImage("sprites/left.png");
+    var player_back = PIXI.Texture.fromImage("sprites/top.png");
+
     var explosionTextures = [];
     //for (var i=0; i < 26; i++)
     //{
@@ -170,7 +176,17 @@ $(document).ready(function()
 			switch(entity.entity_type)
 			{
 				case "player":
-					var player = new PIXI.Sprite(player_texture);
+                    var pl_sprt = null;
+                    if(entity.angle <= 1/4*Math.PI && entity.angle > (1+3/4)*Math.PI) {
+                        pl_sprt = player_right;
+                    } else if(entity.angle > 1/4*Math.PI && entity.angle <= (3/4)*Math.PI) {
+                        pl_sprt = player_front;
+                    } else if(entity.angle > 3/4*Math.PI && entity.angle <= (1+1/4)*Math.PI) {
+                        pl_sprt = player_left;
+                    } else {
+                        pl_sprt = player_back;
+                    }
+					var player = new PIXI.Sprite(pl_sprt);
 					living_players.push(player.id);
 
 					player.tint = 1/4 * player_id / num_players * 4 * parseInt('0x'+player_color);
