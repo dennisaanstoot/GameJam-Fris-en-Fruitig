@@ -1,6 +1,7 @@
 $(document).ready(function()
 {
-	music();
+
+
 
 	// turn off right click menu
 	window.addEventListener("contextmenu", function(e) {
@@ -20,8 +21,7 @@ $(document).ready(function()
 	var player_size = 20;
 	var tree_size = 40;
 	var bullet_size = 10;
-
-    var player_color = 'ffffff'
+    var player_color;
 
 	// textures
 	var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
@@ -31,7 +31,7 @@ $(document).ready(function()
 	// object arrays
 	var player_array = [];
 	var bullet_array = [];
-	
+
 	// Write down the game name
 	var game_name = new PIXI.Text("Fris en dodelijk",{font: 'bold 36px Georgia', fill: 'white'});
 	game_name.anchor.x = game_name.anchor.y = 0.5;
@@ -51,6 +51,7 @@ $(document).ready(function()
 	{
 		event.preventDefault();
 		name = $("#username").val();
+        player_color = $("#color").val();
 		send_to_server("connect "+name);
 		$("#login-form").remove();
 	});
@@ -135,7 +136,8 @@ $(document).ready(function()
 		{
 			var player = new PIXI.Sprite(player_texture);
 			player_array.push(player);
-			player.tint = 1/i*3 * parseInt('0x'+player_color);
+            console.log(player_color);
+			player.tint = 1/(3-i)*3 * parseInt('0x'+player_color);
 			player.anchor.x = player.anchor.y = 0.5;
 			player.width = player.height = player_size;
 			map.addChild(player);
@@ -144,15 +146,9 @@ $(document).ready(function()
 			bullet_array.push(bullet);
 			bullet.anchor.x = bullet.anchor.y = 0.5;
 			bullet.width = bullet.height = bullet_size;
+			bullet.visible = false;
 			map.addChild(bullet);
 		}
-
-		// create loadingbar
-		loadingbar = new PIXI.Graphics(); // see above
-		loadingbar.beginFill(0x1D428A);
-		loadingbar.drawRect(5,map_height-5, 60, 15);
-		loadingbar_width = 60;
-		map.addChild(loadingbar);
 
 		var player_amount_text = new PIXI.Text("Players: "+player_amount, {font: 'normal 12px Georgia', fill: 'white'});
 		player_amount_text.anchor.x = player_amount_text.anchor.y = 1;
@@ -162,8 +158,6 @@ $(document).ready(function()
 
 		document.body.appendChild(renderer.view);
 		draw();
-		shoot_enabled = true;
-		setTimeout(enableShoot(),3000);
 	}
 
 	function draw_frame(message) {
@@ -199,15 +193,14 @@ $(document).ready(function()
 					bullet.position.x = entity.x;
 					bullet.position.y = entity.y;
 					bullet.rotation = entity.angle;
+					bullet.visible = true;
 					bullet_counter++;
 					break;
 			}
 		}
 	}
-	
+
 	function draw() {
-		var now = Date.now();
-		loadingbar.width = ((now-cooldown_start_time)/3000)*loadingbar_width;
 		requestAnimFrame(draw);
 		renderer.render(stage);
 	}
@@ -217,25 +210,7 @@ $(document).ready(function()
 	}
 
 	stage.rightclick = function(event) {
-		if (shoot_enabled)
-		{
-			send_to_server("input r "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
-			shootCooldown();
-			setTimeout(enableShoot(),3000);
-		}
-	}
-
-	function shootCooldown()
-	{
-		cooldown_start_time = Date.now();
-		loadingbar.visible = true;
-		shoot_enabled = false;
-	}
-
-	function enableShoot()
-	{
-		shoot_enabled = true;
-		loadingbar.visible = false;
+		send_to_server("input r "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
 	}
 
 	function send_to_server(message)
@@ -243,4 +218,5 @@ $(document).ready(function()
 		console.log("Send: "+message);
 		socket.send(message);
 	}
+
 });
