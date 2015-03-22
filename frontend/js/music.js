@@ -1,5 +1,11 @@
+
+var mainTune = "Tune";
+
 function music() {
-	var mainTune = "Tune";
 	createjs.Sound.registerSound("music/BgmBa4Darkon.mp3", mainTune);
-	createjs.Sound.play(mainTune);
+	setTimeout(play,1000);
+}
+
+function play() {
+	
 }

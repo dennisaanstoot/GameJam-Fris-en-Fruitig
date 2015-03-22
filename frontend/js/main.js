@@ -1,5 +1,7 @@
 $(document).ready(function()
 {
+	music();
+
 	// turn off right click menu
 	window.addEventListener("contextmenu", function(e) {
         e.preventDefault();
@@ -24,7 +26,7 @@ $(document).ready(function()
 	var game_name = new PIXI.Text("Fris en dodelijk",{font: 'bold 36px Georgia', fill: 'white'});
 	game_name.anchor.x = game_name.anchor.y = 0.5;
 	game_name.position.x = game_width/2;
-	game_name.position.y = 5;
+	game_name.position.y = 15;
 	stage.addChild(game_name);
 
 
@@ -125,7 +127,6 @@ $(document).ready(function()
 
 		document.body.appendChild(renderer.view);
 		draw();
-
 		shoot_enabled = true;
 		setTimeout(enableShoot(),3000);
 	}
@@ -186,7 +187,6 @@ $(document).ready(function()
 	}
 
 	stage.tap = stage.click = function(event) {
-		alert(event.getLocalPosition(map).x+", "+event.getLocalPosition(map).y);
 		send_to_server("input l "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
 	}
 
@@ -206,7 +206,6 @@ $(document).ready(function()
 		loadingbar.beginFill(0x1D428A);
 		loadingbar.drawRect(0,map_height, 0, 15);
 		loadingbar_width = 60;
-		alert(loadingbar_width);
 		map.addChild(loadingbar);
 	}
 
