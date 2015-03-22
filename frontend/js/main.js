@@ -1,5 +1,9 @@
 $(document).ready(function()
 {
+	$(window).bind("resize", function() {
+		$("canvas").width(window.innerWidth);
+		$("canvas").height(window.innerHeight);
+	});
 
 	// turn off right click menu
 	window.addEventListener("contextmenu", function(e) {
@@ -12,9 +16,8 @@ $(document).ready(function()
 	var stage = new PIXI.Stage(0xff0000); // has to be in main scope for callbacks to work
 	var map = new PIXI.DisplayObjectContainer(); // see above
 	var waiting_screen = new PIXI.Text("Waiting for other players",{font: 'bold 36px Georgia', fill: 'white'}); // see above
-	var game_width = 1400;
-	var game_height = 1200;
-	var shoot_enabled = false;
+	var game_width = 1600;
+	var game_height = 1400;
 	var socket = new WebSocket('ws://130.89.231.61:9000','fris_en_fruitig');
 	var player_size = 50;
 	var tree_size = 100;
@@ -37,11 +40,6 @@ $(document).ready(function()
 	game_name.anchor.x = game_name.anchor.y = 0.5;
 	game_name.position.x = game_width/2;
 	game_name.position.y = 15;
-
-	// set game screen to full size (also to enable mobile)
-
-	$("canvas").width = window.innerWidth;
-	$("canvas").height = window.innerHeight;
 
 	// attempt connecting to server with name
 
@@ -115,7 +113,7 @@ $(document).ready(function()
 		$("body").css('background-color', '#000');
 		renderer = PIXI.autoDetectRenderer(game_width, game_height);
 
-		var lava = PIXI.Texture.fromImage("sprites/lava_1.png");
+		var lava = PIXI.Texture.fromImage("sprites/lava_2.png");
 		var game_background = new PIXI.TilingSprite(lava);
 		game_background.width = game_width;
 		game_background.height = game_height;
@@ -145,6 +143,8 @@ $(document).ready(function()
 
 		document.body.appendChild(renderer.view);
 		draw();
+		$("canvas").width(window.innerWidth);
+		$("canvas").height(window.innerHeight);
 	}
 
 	function draw_frame(message) {
@@ -240,13 +240,37 @@ $(document).ready(function()
 		renderer.render(stage);
 	}
 
-	stage.tap = stage.click = function(event) {
+	var click_timer = 0;
+	var timeout;
+	stage.tap = function(event) {
+		if (click_timer = 0)
+		{
+			click_timer = Date.now();
+			timeout = setTimeout(mobileMove(event),100);
+		}
+		else
+		{
+			if (Date.now() - click_timer <= 100)
+			{
+				clearTimeout(timeout);
+				click_timer = 0;
+				send_to_server("input r "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
+			}
+		}
+	}
+
+	function mobileMove(event) {
+		send_to_server("input l "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
+		click_timer = 0;
+	}
+
+	stage.click = function(event) {
 		send_to_server("input l "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
 	}
 
 	stage.rightclick = function(event) {
 		send_to_server("input r "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
-        music('bullet_default')
+        music('bullet_default');
 	}
 
 	function send_to_server(message)

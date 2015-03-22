@@ -7,6 +7,9 @@ body {
     color: #fff;
 }
 
+canvas {
+	display: block;
+}
 
 .loading-assets .progress {
     height: 70px;
