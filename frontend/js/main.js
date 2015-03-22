@@ -22,6 +22,8 @@ $(document).ready(function()
 	var tree_size = 40;
 	var bullet_size = 10;
 
+    var player_color = 'ffffff'
+
 	// textures
 	var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
 	var tree_texture = PIXI.Texture.fromImage("sprites/tree.png");
@@ -46,27 +48,29 @@ $(document).ready(function()
 
 	// attempt connecting to server with name
 
-	$("#connectForm").submit(function(event)
+	$("#login-form").submit(function(event)
 	{
 		event.preventDefault();
-		name = $("#name").val();
+		name = $("#username").val();
 		send_to_server("connect "+name);
-		$("#connectForm").remove();
+		$("#login-form").remove();
 	});
 
 	socket.onopen = function() {
 		console.log("Connection established");
 		$("body").css('background-color', '#0f0');
-	}
+	};
 
 	socket.onerror = function() {
 		$("body").css('background-color', '#f00');
-	}
+	};
 
 	socket.onclose = function() {
 		console.log("Connection closed");
 		$("body").css('background-color', '#000');
-	}
+	};
+
+
 
 	var message;
 	socket.onmessage = function(event) {
@@ -132,7 +136,7 @@ $(document).ready(function()
 		{
 			var player = new PIXI.Sprite(player_texture);
 			player_array.push(player);
-			player.tint = 1/i*3 * 0xffffff;
+			player.tint = 1/i*3 * player_color;
 			player.anchor.x = player.anchor.y = 0.5;
 			player.width = player.height = player_size;
 			map.addChild(player);
@@ -161,6 +165,7 @@ $(document).ready(function()
 
 		var player_counter = 0;
 		var bullet_counter = 0;
+
 		for (var i = 0; i < entities.length; i++)
 		{
 			var entity = entities[i];
@@ -192,7 +197,6 @@ $(document).ready(function()
 					break;
 			}
 		}
-		//draw();
 	}
 	
 	function draw() {
