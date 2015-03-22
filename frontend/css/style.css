@@ -13,14 +13,27 @@ canvas {
 	margin: 10px auto;
 }
 
-.progress.loading-assets {
+.loading-assets .progress {
     height: 70px;
 }
 
-.progress.loading-assets .progress-bar {
+.loading-assets .progress .progress-bar {
     line-height: 70px;
 }
 
-.progress.loading-assets span {
+.loading-assets .progress span {
     font-size: 18px;
+}
+
+#login-form {
+    display: none;
+    width: 400px;
+    border-radius: 20px;
+    background-color: #1d428a;
+    padding: 15px;
+    margin: 100px auto;
+}
+
+#login-form label {
+    color: #fff;
 }

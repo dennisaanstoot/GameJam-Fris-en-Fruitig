@@ -130,7 +130,7 @@ $(document).ready(function()
 		var entities = JSON.parse(message);
 
 		var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
-		var tree_texture = PIXI.Texture.fromImage("sprites/tree.png");
+		var tree_texture = PIXI.Texture.fromImage(  "sprites/tree.png");
 		var bullet_texture = PIXI.Texture.fromImage("sprites/bullet.png");
 
 		player_counter = 2; // semi-random value to generate nice colours for players
