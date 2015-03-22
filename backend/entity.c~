@@ -8,7 +8,13 @@
 #include "game.h"
 #include "entity.h"
 
-struct entity* entity_player_new(unsigned int x, unsigned int y, int xv, int yv, unsigned int xd, unsigned int yd, char* name )
+
+int distance(struct entity * e1, struct entity * e2)
+{
+	return sqrt(pow(e1->x - e2->x,2) + pow(e1->y - e2->y,2));
+}
+
+struct entity* entity_player_new(unsigned int x, unsigned int y, double xv, double yv, unsigned int xd, unsigned int yd, char* name )
 {
 	struct entity * result = malloc(sizeof(struct entity));
 	result->type = PLAYER;
@@ -27,7 +33,7 @@ struct entity* entity_player_new(unsigned int x, unsigned int y, int xv, int yv,
 	return result;
 }
 
-struct entity* entity_bullet_new(unsigned int x, unsigned int y, int xv, int yv)
+struct entity* entity_bullet_new(unsigned int x, unsigned int y, double xv, double yv)
 {
 	struct entity * result = malloc(sizeof(struct entity));
 	result->type = BULLET;
@@ -81,22 +87,41 @@ void player_tick(struct entity * e, struct game * game)
 
 	double a = atan2((int) e->y - (int) info->yd, (int) e->x - (int) info->xd);
 
-	double xv = cos(a) * 2.0;
-	double yv = sin(a) * 2.0;
+	double xv = cos(a) * 3.0;
+	double yv = sin(a) * 3.0;
 
-	info->xv -= (int) xv;
-	info->yv -= (int) yv;
+	info->xv -= xv;
+	info->yv -= yv;
 
-	e->x += info->xv;
-	e->y += info->yv;
+	if(info->xv > 3.0)
+		info->xv = 3.0;
+        if(info->yv > 3.0)
+		info->yv = 3.0;	
+
+	e->x += (int) info->xv;
+	e->y += (int) info->yv;
 }
 
-void bullet_tick(struct entity * e, struct game * game)
+void bullet_tick(struct entity * e, struct game * g)
 {
 	struct bullet_info * info = (struct bullet_info*) e->info;
-	
-	e->x += info->xv;
-	e->y += info->yv;
+	struct player_info * p_info;
+	struct list * e_list = g->entity_list;
+	struct entity * e2;
+
+	int i;
+
+	e->x += (int) info->xv;
+	e->y += (int) info->yv;
+
+	for(i = 0; i < e_list->length; i++)
+	{
+		e2 = e_list->array[i];
+		if(e2->type == PLAYER && distance(e,e2) < 10) {
+			p_info = (struct player_info*) e2->info;
+			p_info->health -= 10;
+		}
+	}
 }
 
 void entity_player_shoot(struct entity * e, struct game * g, unsigned int x, unsigned int y)
@@ -104,8 +129,8 @@ void entity_player_shoot(struct entity * e, struct game * g, unsigned int x, uns
 	struct list * e_list = g->entity_list;
 	double a = atan2(e->y - y, e->x - x);
 	
-	int xv = 4.0 * cos(a);
-	int yv = 4.0 * sin(a);
+	int xv = 3.0 * cos(a);
+	int yv = 3.0 * sin(a);
 
 	struct entity * bullet = entity_bullet_new(e->x, e->y, xv, yv);
 

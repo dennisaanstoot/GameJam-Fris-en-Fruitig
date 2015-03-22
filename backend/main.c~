@@ -54,7 +54,7 @@ void* game_thread(void* args)
 		}
 		
 		
-		usleep(20000);
+		usleep(50000);
 	}
 	printf("End game\n");
 	game = NULL;
@@ -67,7 +67,7 @@ struct list * build_entity_list()
 	struct entity* e;
 	result = malloc(sizeof(struct list));
 	result->length = 0;
-	result->size = 5;
+	result->size = 50;
 	result->array = malloc(sizeof(void*) * result->size);
 	int i;
 	for(i = 0; i < 2; i++)
