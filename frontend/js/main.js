@@ -1,8 +1,6 @@
 $(document).ready(function()
 {
 
-    //head.load("js/player.js");
-
 	// turn off right click menu
 	window.addEventListener("contextmenu", function(e) {
         e.preventDefault();
@@ -19,8 +17,9 @@ $(document).ready(function()
 	var shoot_enabled = false;
 	var socket = new WebSocket('ws://130.89.231.61:9000','fris_en_fruitig');
 	var player_size = 50;
-	var tree_size = 70;
+	var tree_size = 100;
 	var bullet_size = 20;
+    var powerup_size = 40;
     var player_color;
 
     var player_id = 0;
@@ -31,6 +30,7 @@ $(document).ready(function()
 	var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
 	var tree_texture = PIXI.Texture.fromImage("sprites/tree.png");
 	var bullet_texture = PIXI.Texture.fromImage("sprites/bullet.png");
+    var hotdog_texture = PIXI.Texture.fromImage("sprites/hotdog.png");
 
 	// Write down the game name
 	var game_name = new PIXI.Text("Fris en dodelijk",{font: 'bold 36px Georgia', fill: 'white'});
@@ -95,6 +95,7 @@ $(document).ready(function()
                 console.log(message);
                 game_over(message.substr(index_keyword,message.length+1));
                 break;
+
 		}
 	}
 
@@ -160,15 +161,17 @@ $(document).ready(function()
 				case "player":
 					var player = new PIXI.Sprite(player_texture);
 					player.tint = 1/4 * player_id / num_players * 4 * parseInt('0x'+player_color);
-                    num_players++;
-					player.anchor.x = player.anchor.y = 0.5;
+                    player.anchor.x = player.anchor.y = 0.5;
 					player.width = player.height = player_size;
 					player.position.x = entity.x;
 					player.position.y = entity.y;
 					player.rotation = entity.angle - 0.5*Math.PI;
 					map.addChild(player);
-                    player_health = draw_health(entity.health);
-                    map.addChild(player_health);
+                    if(num_players == player_id) {
+                        player_health = draw_health(entity.health);
+                        map.addChild(player_health);
+                    }
+                    num_players++;
 					break;
 
 				case "tree":
@@ -189,6 +192,17 @@ $(document).ready(function()
 					bullet.rotation = entity.angle - 0.5*Math.PI;
 					map.addChild(bullet);
 					break;
+
+                case "health_crate":
+                    var health_crate = new PIXI.Sprite(hotdog_texture);
+                    health_crate.anchor.x = health_crate.anchor.y = 0.5;
+                    health_crate.width = health_crate.height = powerup_size;
+                    health_crate.position.x = entity.x;
+                    health_crate.position.y = entity.y;
+                    health_crate.rotation = 0;
+                    map.addChild(health_crate);
+                    break;
+
 			}
 		}
 	}
@@ -209,13 +223,13 @@ $(document).ready(function()
 
     function draw_health(health) {
         var graphics = new PIXI.Graphics();
-
+        graphics.clear();
         graphics.lineStyle(5, 0x000000, 1);
         graphics.drawRect(30, game_height-260, 100, 30);
 
         graphics.lineStyle(0, 0x000000, 1);
         graphics.beginFill(0xff0000, 1);
-        graphics.drawRect(30, game_height-260, 100, 30);
+        graphics.drawRect(30, game_height-260, health/10, 30);
         graphics.endFill();
 
         return graphics;
@@ -232,6 +246,7 @@ $(document).ready(function()
 
 	stage.rightclick = function(event) {
 		send_to_server("input r "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
+        music('bullet_default')
 	}
 
 	function send_to_server(message)

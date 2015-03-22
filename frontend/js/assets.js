@@ -15,11 +15,13 @@ var pixi_assets = [
     "sprites/tree_brown_1.png",
     "sprites/tree_green_1.png",
     "sprites/tree_orange_1.png",
-    "sprites/waiting.png"];
+    "sprites/waiting.png",
+    "sprites/hotdog.png"];
 
 var sounds = [
     //{src: 'music/BgmBa4Darkon.mp3', name: 'darkon'},
-    //{src: 'music/BgmTh6Flying.mp3', name: 'flying'}
+    //{src: 'music/BgmTh6Flying.mp3', name: 'flying'},
+    {src: 'music/bullet_default.mp3', name: 'bullet_default'}
 ];
 
 
@@ -50,7 +52,7 @@ function calculate_loading_percentage() {
     $('#loading-percentage').html(loader_percentage);
 
     if(loader_percentage == 100) {
-        music();
+        music('darkon')
         head.load('libs/colpick.js', 'css/colpick.css');
         head.ready('libs/colpick.js', 'css/colpick.css');
         setTimeout(show_login_form, 500);
