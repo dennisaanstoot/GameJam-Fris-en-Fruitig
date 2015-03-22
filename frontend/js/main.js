@@ -12,7 +12,7 @@ $(document).ready(function()
     });
 
     // variables constructions / initializations
-	var name, renderer, map_width, map_height, game_name;
+	var name, renderer, map_width, map_height, game_name, player_ids;
 	var stage = new PIXI.Stage(0xff0000); // has to be in main scope for callbacks to work
 	var map = new PIXI.DisplayObjectContainer(); // see above
 	var waiting_screen = new PIXI.Text("Waiting for other players",{font: 'bold 36px Georgia', fill: 'white'}); // see above
@@ -26,6 +26,7 @@ $(document).ready(function()
     var player_color;
 
     var player_id = 0;
+    var player_ids = [];
 
     var player_health;
 
@@ -97,9 +98,12 @@ $(document).ready(function()
 				break;
 
             case "gameover":
-                console.log(message);
+                console.log("Receive: "+message);
                 game_over(message.substr(index_keyword,message.length+1));
                 break;
+
+            case "kill":
+            	console.log("Receive: "+message);
 		}
 	}
 
@@ -114,7 +118,7 @@ $(document).ready(function()
 		map.removeChild(waiting_screen);
 		map_width = message[1];
 		map_height = message[2];
-		var player_amount = message[3];
+		player_ids = new Array(parseInt(message[3]));
 
 		$("body").css('background-color', '#000');
 		renderer = PIXI.autoDetectRenderer(game_width, game_height);
@@ -139,7 +143,7 @@ $(document).ready(function()
 		background.height = map_height;
 		map.addChild(background);
 
-		var player_amount_text = new PIXI.Text("Players: "+player_amount, {font: 'normal 12px Georgia', fill: 'white'});
+		var player_amount_text = new PIXI.Text("Players: "+parseInt(message[3]), {font: 'normal 12px Georgia', fill: 'white'});
 		player_amount_text.anchor.x = player_amount_text.anchor.y = 1;
 		player_amount_text.position.x = map_width-5;
 		player_amount_text.position.y = map_height-15;
@@ -156,7 +160,7 @@ $(document).ready(function()
 	function draw_frame(message) {
 		//console.log(message);
 		var entities = JSON.parse(message);
-
+		var living_players = [];
 		map.removeChildren(1);
         var num_players = 1;
 		for (var i = 0; i < entities.length; i++)
@@ -166,6 +170,8 @@ $(document).ready(function()
 			{
 				case "player":
 					var player = new PIXI.Sprite(player_texture);
+					living_players.push(player.id);
+
 					player.tint = 1/4 * player_id / num_players * 4 * parseInt('0x'+player_color);
                     player.anchor.x = player.anchor.y = 0.5;
 					player.width = player.height = player_size;
@@ -177,6 +183,7 @@ $(document).ready(function()
                         player_health = draw_health(entity.health);
                         map.addChild(player_health);
                     }
+                    player_ids[player.id] = player.position;
                     num_players++;
 					break;
 
@@ -209,6 +216,12 @@ $(document).ready(function()
                     map.addChild(health_crate);
                     break;
 
+			}
+		}
+		for(var i in player_ids) {
+			if(!$.inArray(i, living_players) && player_ids[i] != null) {
+				explosion(player_ids[i]);
+				player_ids[i] = null;
 			}
 		}
 	}
@@ -294,13 +307,13 @@ $(document).ready(function()
 		socket.send(message);
 	}
 
-    function explosion() {
+    function explosion(position) {
         for (var i = 0; i < 50; i++)
         {
             // create an explosion MovieClip
             var explosion = new PIXI.MovieClip(explosionTextures);
-            explosion.position.x = Math.random() * 800;
-            explosion.position.y = Math.random() * 600;
+            explosion.position.x = position.x;
+            explosion.position.y = position.y;
             explosion.anchor.x = 0.5;
             explosion.anchor.y = 0.5;
             explosion.rotation = Math.random() * Math.PI;
