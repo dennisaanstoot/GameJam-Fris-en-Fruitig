@@ -34,6 +34,13 @@ $(document).ready(function()
 	var tree_texture = PIXI.Texture.fromImage("sprites/tree.png");
 	var bullet_texture = PIXI.Texture.fromImage("sprites/bullet.png");
     var hotdog_texture = PIXI.Texture.fromImage("sprites/hotdog.png");
+    var explosionTextures = [];
+    for (var i=0; i < 26; i++)
+    {
+        var texture = PIXI.Texture.fromFrame("Explosion_Sequence_A " + (i+1) + ".png");
+        explosionTextures.push(texture);
+    };
+
 
 	// Write down the game name
 	var game_name = new PIXI.Text("Fris en dodelijk",{font: 'bold 36px Georgia', fill: 'white'});
@@ -278,5 +285,21 @@ $(document).ready(function()
 		console.log("Send: "+message);
 		socket.send(message);
 	}
+
+    function explosion() {
+        for (var i = 0; i < 50; i++)
+        {
+            // create an explosion MovieClip
+            var explosion = new PIXI.MovieClip(explosionTextures);
+            explosion.position.x = Math.random() * 800;
+            explosion.position.y = Math.random() * 600;
+            explosion.anchor.x = 0.5;
+            explosion.anchor.y = 0.5;
+            explosion.rotation = Math.random() * Math.PI;
+            explosion.scale.x = explosion.scale.y = 0.75 + Math.random() * 0.5;
+            explosion.gotoAndPlay(Math.random() * 27);
+            stage.addChild(explosion);
+        }
+    }
 
 });

@@ -16,7 +16,9 @@ var pixi_assets = [
     "sprites/tree_green_1.png",
     "sprites/tree_orange_1.png",
     "sprites/waiting.png",
-    "sprites/hotdog.png"];
+    "sprites/hotdog.png",
+    "sprites/explosion.json"
+    ];
 
 var sounds = [
     //{src: 'music/BgmBa4Darkon.mp3', name: 'darkon'},
