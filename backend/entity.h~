@@ -24,6 +24,7 @@ struct player_info {
 struct bullet_info {
 	int xv;
 	int yv;
+	unsigned int ticks;
 };
 
 struct entity* entity_player_new(unsigned int x, unsigned int y, int xv, int yv, unsigned int xd, unsigned int yd, char* name);

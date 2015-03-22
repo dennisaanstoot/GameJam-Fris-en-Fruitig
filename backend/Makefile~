@@ -1,7 +1,7 @@
 
 CC=gcc
 
-LFLAGS= -ljson-c -lwebsockets -lm
+LFLAGS= -ljson-c -lwebsockets -lm -lpthread -Wall
 
 all: server
 
