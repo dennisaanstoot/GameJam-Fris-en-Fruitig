@@ -22,13 +22,8 @@ var sounds = [
     {src: 'music/BgmTh6Flying.mp3', name: 'flying'}
 ];
 
+
 var total_loaded = 0;
-
-var loader = new PIXI.AssetLoader(pixi_assets, true);
-
-loader.on('onProgress', calculate_loading_percentage);
-
-loader.load();
 
 createjs.Sound.alternateExtensions = ["mp3"];
 createjs.Sound.on("fileload", calculate_loading_percentage);
@@ -38,6 +33,12 @@ for(var i in sounds) {
     createjs.Sound.registerSound(sounds[i].src, sounds[i].name);
 
 }
+
+var loader = new PIXI.AssetLoader(pixi_assets, true);
+
+loader.on('onProgress', calculate_loading_percentage);
+
+loader.load();
 
 function calculate_loading_percentage() {
     var loader_percentage = ++total_loaded / (pixi_assets.length + sounds.length) * 100;
@@ -49,6 +50,7 @@ function calculate_loading_percentage() {
     $('#loading-percentage').html(loader_percentage);
 
     if(loader_percentage == 100) {
+        music();
         head.load('libs/colpick.js', 'css/colpick.css');
         head.ready('libs/colpick.js', 'css/colpick.css');
         setTimeout(show_login_form, 500);

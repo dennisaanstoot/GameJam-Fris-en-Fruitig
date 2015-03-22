@@ -1,7 +1,7 @@
 $(document).ready(function()
 {
 
-	music();
+
 
 	// turn off right click menu
 	window.addEventListener("contextmenu", function(e) {
@@ -31,7 +31,7 @@ $(document).ready(function()
 	// object arrays
 	var player_array = [];
 	var bullet_array = [];
-	
+
 	// Write down the game name
 	var game_name = new PIXI.Text("Fris en dodelijk",{font: 'bold 36px Georgia', fill: 'white'});
 	game_name.anchor.x = game_name.anchor.y = 0.5;
@@ -199,7 +199,7 @@ $(document).ready(function()
 			}
 		}
 	}
-	
+
 	function draw() {
 		requestAnimFrame(draw);
 		renderer.render(stage);
