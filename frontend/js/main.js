@@ -1,5 +1,7 @@
 $(document).ready(function()
 {
+	music();
+
 	// turn off right click menu
 	window.addEventListener("contextmenu", function(e) {
         e.preventDefault();
@@ -16,12 +18,15 @@ $(document).ready(function()
 	var game_height = window.innerHeight;
 	var shoot_enabled = false;
 	var socket = new WebSocket('ws://130.89.231.61:9000','fris_en_fruitig');
+	var player_size = 20;
+	var tree_size = 40;
+	var bullet_size = 10;
 	
 	// Write down the game name
 	var game_name = new PIXI.Text("Fris en dodelijk",{font: 'bold 36px Georgia', fill: 'white'});
 	game_name.anchor.x = game_name.anchor.y = 0.5;
 	game_name.position.x = game_width/2;
-	game_name.position.y = 5;
+	game_name.position.y = 15;
 	stage.addChild(game_name);
 
 
@@ -57,20 +62,22 @@ $(document).ready(function()
 	var message;
 	socket.onmessage = function(event) {
 		console.log(event);
-		message = event.data.split(" ");
+		message = event.data;
+		var index_keyword = message.indexOf(" ");
+		var keyword = message.substr(0,index_keyword);
 		console.log("Receive: "+message);
-		switch (message[0])
+		switch (keyword)
 		{
 			case "ok":
 				wait_screen();
 				break;
 
 			case "start":
-				start_game(message);
+				start_game(message.substr(index_keyword,message.length+1).split(" "));
 				break;
 
 			case "frame":
-				draw_frame(message);
+				draw_frame(message.substr(index_keyword,message.length+1));
 				break;
 		}
 	}
@@ -91,8 +98,8 @@ $(document).ready(function()
 		$("body").css('background-color', '#000');
 		renderer = PIXI.autoDetectRenderer(game_width, game_height);
 
-		var lava = PIXI.Texture.fromImage("sprites/lava.png");
-		var game_background = new PIXI.Sprite(lava);
+		var lava = PIXI.Texture.fromImage("sprites/lava_1.png");
+		var game_background = new PIXI.TilingSprite(lava);
 		game_background.width = game_width;
 		game_background.height = game_height;
 		stage.addChild(game_background);
@@ -120,13 +127,11 @@ $(document).ready(function()
 
 		document.body.appendChild(renderer.view);
 		draw();
-
 		shoot_enabled = true;
 		setTimeout(enableShoot(),3000);
 	}
 
 	function draw_frame(message) {
-		message.splice(0,1);
 		var entities = JSON.parse(message);
 
 		var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
@@ -137,7 +142,7 @@ $(document).ready(function()
 		for (var i = 0; i < entities.length; i++)
 		{
 			var entity = entities[i];
-			switch(entity[0])
+			switch(entity.entity_type)
 			{
 				case "player":
 					var player = new PIXI.Sprite(player_texture);
@@ -146,7 +151,7 @@ $(document).ready(function()
 					player.position.x = entity.x;
 					player.position.y = entity.y;
 					player.rotation = entity.angle;
-					player.width = player.height = 10;
+					player.width = player.height = player_size;
 					map.addChild(player);
 					player_counter += 3;
 					break;
@@ -156,7 +161,7 @@ $(document).ready(function()
 					tree.anchor.x = tree.anchor.y = 0.5;
 					tree.position.x = entity.x;
 					tree.position.y = entity.y;
-					tree.width = tree.height = 20;
+					tree.width = tree.height = tree_size;
 					map.addChild(tree);
 					break;
 
@@ -166,7 +171,7 @@ $(document).ready(function()
 					bullet.position.x = entity.x;
 					bullet.position.y = entity.y;
 					bullet.position = entity.angle;
-					bullet.width = bullet.height = 5;
+					bullet.width = bullet.height = bullet_size;
 					map.addChild(bullet);
 					break;
 			}
@@ -182,7 +187,6 @@ $(document).ready(function()
 	}
 
 	stage.tap = stage.click = function(event) {
-		alert(event.getLocalPosition(map).x+", "+event.getLocalPosition(map).y);
 		send_to_server("input l "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
 	}
 
@@ -202,7 +206,6 @@ $(document).ready(function()
 		loadingbar.beginFill(0x1D428A);
 		loadingbar.drawRect(0,map_height, 0, 15);
 		loadingbar_width = 60;
-		alert(loadingbar_width);
 		map.addChild(loadingbar);
 	}
 
