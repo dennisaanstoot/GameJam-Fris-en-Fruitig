@@ -1,6 +1,7 @@
 #include "list.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 void list_print(struct list * l)
 {
@@ -28,7 +29,6 @@ void list_add(struct list * l, void * e)
 	}
 	l->array[l->length] = e;
 	l->length++;
-	printf("Size: %d \tLength: %d\n", l->size, l->length);
 }
 
 void list_remove(struct list * l, void * e)

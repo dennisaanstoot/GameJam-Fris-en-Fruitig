@@ -20,28 +20,31 @@
 #define WIDTH 800 
 #define HEIGHT 600
 
-char names[30][30];
+static char start[] = "start 800 600 2";
+
+char names[4][30];
 unsigned player_amount;
 struct game* game;
 struct libwebsocket * sockets[PLAYERS];
+
+char temp_string[1024];
+char* temp_pointer;
 
 void* game_thread(void* args)
 {
 	int i;
 	printf("Game on\n");
-	unsigned char start[] = "start 800 600 2";
 	size_t size;
 
-	char* string;
-
 	struct entity * e;
-	
-	size_t l = sizeof(start);
 	json_object* jobj;
 	
+	strcpy(temp_pointer,start);
+	size = strlen(temp_pointer);
+
 	for(i = 0; i < PLAYERS; i++)
 	{
-	    	libwebsocket_write(sockets[i], start, l-1,0);
+	    	libwebsocket_write(sockets[i], temp_pointer, size,0);
 	}
 	while(!game_over(game))
 	{
@@ -49,22 +52,19 @@ void* game_thread(void* args)
 		jobj = json_frame(game);
 	
 		const char * json_string = json_object_to_json_string(jobj);
-		size = strlen(json_string);
-		string = (char*) malloc(size + 10);
 
-		sprintf(string,"frame %s", json_string);
-		size = strlen(string);
-		
+		strcpy(temp_pointer, "frame ");
+		strcat(temp_pointer, json_string);
+		size = strlen(temp_pointer);	
+	
 		// printf("JSON: %s\n", string);
 		
 		for(i = 0; i < PLAYERS; i++)
 		{
-			libwebsocket_write(sockets[i],string, size, 0);
+			libwebsocket_write(sockets[i],temp_pointer, size, 0);
 		}
 
-//		free(string);
-
-//		json_object_put(jobj);
+		json_object_put(jobj);
 	
 		usleep(15000);
 	}
@@ -74,17 +74,16 @@ void* game_thread(void* args)
 
 	e = game_get_winner(game);
 	struct player_info * info = e->info;
-	string = malloc(10 + strnlen(info->name, 30));
 
-	sprintf(string,"gameover %s", info->name);
+	strcpy(temp_pointer, "gameover ");
+	strcat(temp_pointer, info->name);
 
-	size = strlen(string);
+	size = strlen(temp_pointer);
 
 	for(i = 0; i < PLAYERS; i++)
 	{
-		libwebsocket_write(sockets[i],string, size, 0);
+		libwebsocket_write(sockets[i],temp_pointer, size, 0);
 	}
-
 
 	for(i = 0; i < e_list->length; i++)
 	{
@@ -99,6 +98,8 @@ void* game_thread(void* args)
 		case TREE:
 			entity_tree_destroy(e);
 			break;
+		case HEALTH_CRATE:
+			entity_health_destroy(e);
 		}
 	}
 	game_destroy(game);
@@ -138,17 +139,19 @@ my_protocol_callback(struct libwebsocket_context *context,
 		enum libwebsocket_callback_reasons reason,
 		void *user, void *in, size_t len)
 {
-	char* ch;
-	char* string;
+	char* ch1;
+	char* ch2;
 	char* pch;
+	char buffer[10];
+
 	size_t l;
 	struct field field;
 	struct list * entity_list;
 
 	int i;
 
-	unsigned int x;
-	unsigned int y;
+	int x;
+	int y;
 	char b;
 
 	pthread_t thread;
@@ -159,20 +162,22 @@ my_protocol_callback(struct libwebsocket_context *context,
             printf("Connection established\n");
       	    break;
 	case LWS_CALLBACK_RECEIVE:
-	    string = (char*) in;
-	    
-	    pch = strtok(string," ");
-
+	    pch = strtok((char*) in," ");
 
 	    if(game == NULL && strncmp(pch,"connect",8) == 0)
 	    {
 		pch = strtok(NULL, " ");
 
-		ch = malloc(9 * sizeof(char));
-		sprintf(ch, "ok %d", player_amount);
+		ch1 = malloc((LWS_SEND_BUFFER_PRE_PADDING + LWS_SEND_BUFFER_POST_PADDING + 16) 
+			* sizeof(char));
+		ch2 = ch1 + LWS_SEND_BUFFER_PRE_PADDING * sizeof(char);
+		sprintf(buffer, "%d", player_amount);
+		strcpy(ch2,"ok ");
+		strcat(ch2,buffer);
 
-		l = strlen(ch);
-		libwebsocket_write(wsi,ch,l,0);  
+		l = strlen(ch2);
+		libwebsocket_write(wsi,ch2,l,0);
+		free(ch1);
 
 		strncpy(names[player_amount],pch,30);
 		sockets[player_amount] = wsi;
@@ -190,7 +195,6 @@ my_protocol_callback(struct libwebsocket_context *context,
 			pthread_create(&thread, NULL, game_thread, NULL);
 			player_amount = 0;
 		}	
-
 	    }
 	    else if(strncmp(pch,"input",6) == 0 && game != NULL)
 	    {
@@ -221,13 +225,10 @@ my_protocol_callback(struct libwebsocket_context *context,
 			}
 		}
 	    }
-
 	    break;
         default:
-//          printf("unhandled callback\n");
             break;
     	}
-   
     	return 0;
 }
 
@@ -237,6 +238,7 @@ int main(int argc, char** arg)
   // server url will be http://localhost:9000
   srand(time(NULL));
   player_amount = 0;
+  temp_pointer = temp_string + LWS_SEND_BUFFER_PRE_PADDING * sizeof(char);
   int port = 9000;
   const char *interface = NULL;
   struct libwebsocket_context *context;
