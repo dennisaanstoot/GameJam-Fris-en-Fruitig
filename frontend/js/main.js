@@ -1,5 +1,4 @@
-$(document).ready(function()
-{
+$(document).ready(function() {
 	$(window).bind("resize", function() {
 		$("canvas").width(window.innerWidth);
 		$("canvas").height(window.innerHeight);
@@ -7,93 +6,85 @@ $(document).ready(function()
 
 	// turn off right click menu
 	window.addEventListener("contextmenu", function(e) {
-        e.preventDefault();
-        return false;
-    });
+    e.preventDefault();
+    return false;
+  });
 
-    // variables constructions / initializations
-	var name, renderer, map_width, map_height, game_name, player_ids;
+  // variables constructions / initializations
+	var name, renderer, map_width, map_height;
 	var stage = new PIXI.Stage(0xff0000); // has to be in main scope for callbacks to work
 	var map = new PIXI.DisplayObjectContainer(); // see above
 	var waiting_screen = new PIXI.Text("Waiting for other players",{font: 'bold 36px Georgia', fill: 'white'}); // see above
 	var game_width = 1200;
+	var socket = new WebSocket('ws://frisendodelijk.langstra.nl:9000','fris_en_fruitig');
 	var game_height = 1100;
-	var socket = new WebSocket('ws://130.89.231.61:9000','fris_en_fruitig');
 	var player_size = 50;
 	var tree_size = 100;
 	var bullet_size = 50;
-    var powerup_size = 40;
-    var player_color;
+  var powerup_size = 40;
+  var player_color;
 
-    var player_id = 0;
-    var player_ids = [];
-
-    var player_health;
+  var player_id = 0;
+  var player_ids = [];
+  var player_health;
 
 	// textures
 	var player_texture = PIXI.Texture.fromImage("sprites/soldier.png");
 	var tree_texture = PIXI.Texture.fromImage("sprites/tree_brown_1.png");
 	var bullet_texture = PIXI.Texture.fromImage("sprites/fireball.png");
-    var hotdog_texture = PIXI.Texture.fromImage("sprites/hotdog.png");
-    var health_pill_texture = PIXI.Texture.fromImage("sprites/health_pill.png");
+  var hotdog_texture = PIXI.Texture.fromImage("sprites/hotdog.png");
+  var health_pill_texture = PIXI.Texture.fromImage("sprites/health_pill.png");
 
-    var player_right = PIXI.Texture.fromImage("sprites/right.png");
-    var player_front = PIXI.Texture.fromImage("sprites/down.png");
-    var player_left = PIXI.Texture.fromImage("sprites/left.png");
-    var player_back = PIXI.Texture.fromImage("sprites/top.png");
-
-    var explosionTextures = [];
-    //for (var i=0; i < 26; i++)
-    //{
-    //    var texture = PIXI.Texture.fromFrame("Explosion_Sequence_A " + (i+1) + ".png");
-    //    explosionTextures.push(texture);
-    //};
-
+  var player_right = PIXI.Texture.fromImage("sprites/right.png");
+  var player_front = PIXI.Texture.fromImage("sprites/down.png");
+  var player_left = PIXI.Texture.fromImage("sprites/left.png");
+  var player_back = PIXI.Texture.fromImage("sprites/top.png");
 
 	// Write down the game name
 	var game_name = new PIXI.Text("Fris en dodelijk",{font: 'bold 36px Georgia', fill: 'white'});
-	game_name.anchor.x = game_name.anchor.y = 0.5;
+	game_name.anchor.x = game_name.anchor.y = 1;
 	game_name.position.x = game_width/2;
 	game_name.position.y = 15;
 
 	// attempt connecting to server with name
 
+	function send_to_server(message)
+	{
+		socket.send(message);
+	}
+
 	$("#login-form").submit(function(event)
 	{
 		event.preventDefault();
 		name = $("#username").val();
-        player_color = $("#color").val();
+    player_color = $("#color").val();
 		send_to_server("connect "+name);
 		$("#login-form").remove();
 	});
 
 	socket.onopen = function() {
-        $("#server-online").show();
+    $("#server-online").show();
 	};
 
 	socket.onerror = function() {
-        $("#server-offline").show();
+  	$("#server-offline").show();
 	};
 
 	socket.onclose = function() {
-        $("#server-offline").show();
+    $("#server-offline").show();
 	};
-
-
 
 	var message;
 	socket.onmessage = function(event) {
-		//console.log(event);
 		message = event.data;
 		var index_keyword = message.indexOf(" ");
 		var keyword = message.substr(0,index_keyword);
-		//console.log("Receive: "+message);
 		switch (keyword)
 		{
 			case "ok":
 				wait_screen();
-                player_id = parseInt(message.substr(index_keyword, message.length+1))+1;
-                console.log(message)
+        player_id = parseInt(message.substr(index_keyword, message.length+1))+1;
+        console.log(message);
 				break;
 
 			case "start":
@@ -104,15 +95,16 @@ $(document).ready(function()
 				draw_frame(message.substr(index_keyword,message.length+1));
 				break;
 
-            case "gameover":
-                console.log("Receive: "+message);
-                game_over(message.substr(index_keyword,message.length+1));
-                break;
+      case "gameover":
+        console.log("Receive: "+message);
+        game_over(message.substr(index_keyword,message.length+1));
+        break;
 
-            case "kill":
-            	console.log("Receive: "+message);
+      case "kill":
+      	console.log("Receive: "+message);
+				break;
 		}
-	}
+	};
 
 	function wait_screen() {
 		waiting_screen.anchor.x = waiting_screen.anchor.y = 0.5;
@@ -125,7 +117,7 @@ $(document).ready(function()
 		map.removeChild(waiting_screen);
 		map_width = message[1];
 		map_height = message[2];
-		player_ids = new Array(parseInt(message[3]));
+		player_ids = [parseInt(message[3])];
 
 		$("body").css('background-color', '#000');
 		renderer = PIXI.autoDetectRenderer(game_width, game_height);
@@ -165,43 +157,42 @@ $(document).ready(function()
 	}
 
 	function draw_frame(message) {
-		//console.log(message);
 		var entities = JSON.parse(message);
 		var living_players = [];
 		map.removeChildren(1);
-        var num_players = 1;
+    var num_players = 1;
 		for (var i = 0; i < entities.length; i++)
 		{
 			var entity = entities[i];
 			switch(entity.entity_type)
 			{
 				case "player":
-                    var pl_sprt = null;
-                    if(entity.angle <= 1/4*Math.PI && entity.angle > (1+3/4)*Math.PI) {
-                        pl_sprt = player_left;
-                    } else if(entity.angle > 1/4*Math.PI && entity.angle <= (3/4)*Math.PI) {
-                        pl_sprt = player_back;
-                    } else if(entity.angle > 3/4*Math.PI && entity.angle <= (1+1/4)*Math.PI) {
-                        pl_sprt = player_right;
-                    } else {
-                        pl_sprt = player_front;
-                    }
+          var pl_sprt = null;
+          if(entity.angle <= 1/4*Math.PI && entity.angle > (1+3/4)*Math.PI) {
+            pl_sprt = player_left;
+          } else if(entity.angle > 1/4*Math.PI && entity.angle <= (3/4)*Math.PI) {
+            pl_sprt = player_back;
+          } else if(entity.angle > 3/4*Math.PI && entity.angle <= (1+1/4)*Math.PI) {
+            pl_sprt = player_right;
+          } else {
+            pl_sprt = player_front;
+          }
 					var player = new PIXI.Sprite(pl_sprt);
 					living_players.push(player.id);
 
 					player.tint = 1/4 * player_id / num_players * 4 * parseInt('0x'+player_color);
-                    player.anchor.x = player.anchor.y = 0.5;
+          player.anchor.x = player.anchor.y = 0.5;
 					player.width = player.height = player_size;
 					player.position.x = entity.x;
 					player.position.y = entity.y;
 					//player.rotation = entity.angle - 0.5*Math.PI;
 					map.addChild(player);
-                    if(num_players == player_id) {
-                        player_health = draw_health(entity.health);
-                        map.addChild(player_health);
-                    }
-                    player_ids[player.id] = player.position;
-                    num_players++;
+          if(num_players == player_id) {
+            player_health = draw_health(entity.health);
+            map.addChild(player_health);
+          }
+          player_ids[player.id] = player.position;
+          num_players++;
 					break;
 
 				case "tree":
@@ -223,63 +214,62 @@ $(document).ready(function()
 					map.addChild(bullet);
 					break;
 
-                case "health_crate":
-                    var health_crate = new PIXI.Sprite(health_pill_texture);
-                    health_crate.anchor.x = health_crate.anchor.y = 0.5;
-                    health_crate.width = health_crate.height = powerup_size;
-                    health_crate.position.x = entity.x;
-                    health_crate.position.y = entity.y;
-                    health_crate.rotation = 0;
-                    map.addChild(health_crate);
-                    break;
-
+        case "health_crate":
+          var health_crate = new PIXI.Sprite(health_pill_texture);
+          health_crate.anchor.x = health_crate.anchor.y = 0.5;
+          health_crate.width = health_crate.height = powerup_size;
+          health_crate.position.x = entity.x;
+          health_crate.position.y = entity.y;
+          health_crate.rotation = 0;
+          map.addChild(health_crate);
+          break;
 			}
 		}
-		for(var i in player_ids) {
-			if(!$.inArray(i, living_players) && player_ids[i] != null) {
-				explosion(player_ids[i]);
-				player_ids[i] = null;
+		for(var j in player_ids) {
+			if(!$.inArray(j, living_players) && player_ids[j] !== null) {
+				explosion(player_ids[j]);
+				player_ids[j] = null;
 			}
 		}
 	}
 
-    function game_over(winner) {
-        console.log(winner);
-        var title = new PIXI.Text("GAME OVER!", {align: "center", font: 'bold 36px Georgia', fill: 'white'});
-        var text = new PIXI.Text("The winner is: "+winner, {align: "left", font: 'bold 24px Georgia', fill: 'white'});
-        title.anchor.x = title.anchor.x = 1;
-        title.position.x = game_width / 2;
-        title.position.y = 10;
-        text.anchor.x = text.anchor.x = 1;
-        text.position.x = game_width / 2;
-        text.position.y = 46;
-        map.addChild(title);
-        map.addChild(text);
+  function game_over(winner) {
+    console.log(winner);
+    var title = new PIXI.Text("GAME OVER!", {align: "center", font: 'bold 36px Georgia', fill: 'white'});
+    var text = new PIXI.Text("The winner is: "+winner, {align: "left", font: 'bold 24px Georgia', fill: 'white'});
+    title.anchor.x = title.anchor.y = 1;
+    title.position.x = game_width / 2;
+    title.position.y = 10;
+    text.anchor.x = text.anchor.y = 1;
+    text.position.x = game_width / 2;
+    text.position.y = 46;
+    map.addChild(title);
+    map.addChild(text);
+  }
+
+  function draw_health(health) {
+    var graphics = new PIXI.Graphics();
+    graphics.clear();
+    graphics.lineStyle(5, 0x000000, 1);
+    var width;
+    health = health/10;
+    if (health<100)
+    {
+    	width = 100;
     }
-
-    function draw_health(health) {
-        var graphics = new PIXI.Graphics();
-        graphics.clear();
-        graphics.lineStyle(5, 0x000000, 1);
-        var width;
-        health = health/10;
-        if (health<100)
-        {
-        	width = 100;
-        }
-        else
-        {
-        	width = health;
-        }
-        graphics.drawRect(30, map_height-30, width, 30);
-
-        graphics.lineStyle(0, 0x000000, 1);
-        graphics.beginFill(0xff0000, 1);
-        graphics.drawRect(30, map_height-30, health, 30);
-        graphics.endFill();
-
-        return graphics;
+    else
+    {
+    	width = health;
     }
+    graphics.drawRect(30, map_height-30, width, 30);
+
+    graphics.lineStyle(0, 0x000000, 1);
+    graphics.beginFill(0xff0000, 1);
+    graphics.drawRect(30, map_height-30, health, 30);
+    graphics.endFill();
+
+    return graphics;
+  }
 
 	function draw() {
 		requestAnimFrame(draw);
@@ -289,7 +279,7 @@ $(document).ready(function()
 	var click_timer = 0;
 	var timeout;
 	stage.tap = function(event) {
-		if (click_timer == 0)
+		if (click_timer === 0)
 		{
 			click_timer = Date.now();
 			timeout = setTimeout(function() {
@@ -307,37 +297,15 @@ $(document).ready(function()
 				send_to_server("input r "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
 			}
 		}
-	}
+	};
 
 	stage.click = function(event) {
 		send_to_server("input l "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
-	}
+	};
 
 	stage.rightclick = function(event) {
 		send_to_server("input r "+event.getLocalPosition(map).x+" "+event.getLocalPosition(map).y);
-        music('bullet_default');
-	}
-
-	function send_to_server(message)
-	{
-		console.log("Send: "+message);
-		socket.send(message);
-	}
-
-    function explosion(position) {
-        for (var i = 0; i < 50; i++)
-        {
-            // create an explosion MovieClip
-            var explosion = new PIXI.MovieClip(explosionTextures);
-            explosion.position.x = position.x;
-            explosion.position.y = position.y;
-            explosion.anchor.x = 0.5;
-            explosion.anchor.y = 0.5;
-            explosion.rotation = Math.random() * Math.PI;
-            explosion.scale.x = explosion.scale.y = 0.75 + Math.random() * 0.5;
-            explosion.gotoAndPlay(Math.random() * 27);
-            stage.addChild(explosion);
-        }
-    }
+    music('bullet_default');
+	};
 
 });
