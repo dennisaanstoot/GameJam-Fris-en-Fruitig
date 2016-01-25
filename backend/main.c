@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <libwebsockets.h>
 
-#include <json/json.h>
+#include <json-c/json.h>
 #include <sys/time.h>
 
 #include <pthread.h>
@@ -243,12 +243,8 @@ int main(int argc, char** arg)
   const char *interface = NULL;
   struct libwebsocket_context *context;
   // we're not using ssl
-  const char *cert_path = NULL;
-  const char *key_path = NULL;
-
-
-  // no special options
-  
+  // const char *cert_path = NULL;
+  // const char *key_path = NULL;
   
   struct libwebsocket_protocols protocols[] = {
   {
@@ -261,16 +257,27 @@ int main(int argc, char** arg)
 		NULL,
 		0
   	},
-  	{NULL, NULL, 0, 0}
-  };
+  	{NULL, NULL, 0, 0, 0, NULL, NULL, 0}
+  };  
+  struct lws_context_creation_info info;
+  memset(&info, 0, sizeof(info));
+  info.port = 9000;
+  info.protocols = protocols;
+  info.extensions = libwebsocket_get_internal_extensions();
+  info.gid = -1;
+  info.uid = -1;
+
+
   
+  /*
   struct lws_context_creation_info info = {port, interface, protocols, libwebsocket_get_internal_extensions(), 
 				    NULL, cert_path, key_path, NULL, 
 				    NULL, NULL, NULL, 0,-1,-1, 0,
 				    NULL, 0, 0, 0,
 				    NULL 
   };
-//  memset(&info, 0, sizeof info);
+  */
+
   context = libwebsocket_create_context(&info);
     
   if (context == NULL) {

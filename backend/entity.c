@@ -8,6 +8,10 @@
 #include "game.h"
 #include "entity.h"
 
+void error() {
+	printf("Error\n");
+	exit(-1);
+}
 
 int distance(struct entity * e1, struct entity * e2)
 {
@@ -17,10 +21,16 @@ int distance(struct entity * e1, struct entity * e2)
 struct entity* entity_player_new(double x, double y, double xv, double yv, unsigned int xd, unsigned int yd, char* name )
 {
 	struct entity * result = malloc(sizeof(struct entity));
+	if(!result) {
+		error();
+	}
 	result->type = PLAYER;
 	result->x = x;
 	result->y = y;
 	struct player_info * info = malloc(sizeof(struct player_info));
+	if(!info) {
+		error();
+	}
 	info->xv = xv;
 	info->yv = yv;
 	info->xd = xd;
@@ -37,10 +47,16 @@ struct entity* entity_player_new(double x, double y, double xv, double yv, unsig
 struct entity* entity_bullet_new(double x, double y, double xv, double yv)
 {
 	struct entity * result = malloc(sizeof(struct entity));
+	if(!result) {
+		error();
+	}
 	result->type = BULLET;
 	result->x = x;
 	result->y = y;
 	struct bullet_info * info = malloc(sizeof(struct bullet_info));
+	if(!info) {
+		error();
+	}
 	info->xv = xv;
 	info->yv = yv;
 	info->ticks = 0;
@@ -51,6 +67,9 @@ struct entity* entity_bullet_new(double x, double y, double xv, double yv)
 struct entity* entity_tree_new(double x, double y) 
 {
 	struct entity * result = malloc(sizeof(struct entity));
+	if(!result) {
+		error();
+	}
 	result->x = x;
 	result->y = y;
 	result->type = TREE;
@@ -60,6 +79,9 @@ struct entity* entity_tree_new(double x, double y)
 struct entity* entity_health_new(double x, double y) 
 {
 	struct entity * result = malloc(sizeof(struct entity));
+	if(!result) {
+		error();
+	}
 	result->x = x;
 	result->y = y;
 	result->type = HEALTH_CRATE;;
@@ -103,7 +125,6 @@ void move_to_dest(struct entity * e, struct game * game)
     	}
 	
 	if( !( (info->angle - info->prev_angle <= info->angle_vel && info->angle - info->prev_angle >= 0) && (info->prev_angle - info->angle <= - info->angle_vel && info->angle_vel - info->angle >= 0 ) ) )
-
 	{
 		if( (info->angle < info->prev_angle && info->prev_angle - info->angle < M_PI) || 
 			( info->angle - info->prev_angle >= M_PI && info->angle > M_PI ) ) 
@@ -222,11 +243,12 @@ void bullet_tick(struct entity * e, struct game * g)
 
 				list_remove(e_list, e);
 				entity_bullet_destroy(e);
-
+				break;
 			}
 			else if(e2->type == TREE && distance(e,e2) < 20) {
 				list_remove(e_list, e);
 				entity_bullet_destroy(e);
+				break;
 			}
 		}
 	}

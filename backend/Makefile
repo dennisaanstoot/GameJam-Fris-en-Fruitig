@@ -1,8 +1,8 @@
 
 CC=gcc
 
-LFLAGS = -ljson -lwebsockets -lm -lpthread
-CFLAGS = -Wall -g
+LFLAGS = -L/usr/local/lib -lssl -lcrypto -lz -ljson-c -lwebsockets -lm -lpthread
+CFLAGS = -Wall -O2 -I/usr/local/include
 
 all: server
 

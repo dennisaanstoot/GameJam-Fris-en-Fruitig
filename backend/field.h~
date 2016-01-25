@@ -1,8 +1,0 @@
-
-struct field {
-  unsigned int width;
-  unsigned int height;
-};
-
-void field_on_field(struct field field, unsigned int x, unsigned int y);
-

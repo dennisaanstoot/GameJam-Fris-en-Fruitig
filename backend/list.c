@@ -29,6 +29,7 @@ void list_add(struct list * l, void * e)
 	}
 	l->array[l->length] = e;
 	l->length++;
+//	list_print(l);
 }
 
 void list_remove(struct list * l, void * e)
@@ -38,7 +39,7 @@ void list_remove(struct list * l, void * e)
 	{
 		if(l->array[i] == e)
 		{
-			while(i < l->length -1)
+			while(i < l->length - 1)
 			{
 				l->array[i] = l->array[i+1];
 				i++;
@@ -48,6 +49,8 @@ void list_remove(struct list * l, void * e)
 			return;
 		}
 	}
+//	list_print(l);
+//	printf("Not in array: %p\n", e);
 }
 
 
