@@ -26,7 +26,7 @@ var pixi_assets = [
     "sprites/down.png",
     "sprites/left.png",
     "sprites/top.png",
-    ];
+  ];
 
 var sounds = [
     //{src: 'music/BgmBa4Darkon.mp3', name: 'darkon'},
@@ -55,7 +55,6 @@ loader.load();
 function calculate_loading_percentage() {
     var loader_percentage = ++total_loaded / (pixi_assets.length + sounds.length) * 100;
     loader_percentage = Math.round(loader_percentage);
-    console.log(loader_percentage);
 
     $('.loading-assets .progress-bar').css("width", loader_percentage+'%');
     $('.loading-assets .progress-bar').attr("aria-valuenow", loader_percentage);
